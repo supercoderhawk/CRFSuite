@@ -28,15 +28,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __LOGGING_H__
 #define    __LOGGING_H__
 
 typedef struct {
-    void *instance;
-    crfsuite_logging_callback func;
-    int percent;
+	void *instance;
+	crfsuite_logging_callback func;
+	int percent;
 } logging_t;
 
 void logging(logging_t* lg, const char *format, ...);

@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #include <os.h>
 
@@ -41,19 +41,20 @@
 
 static int progress(FILE *fpo, int prev, int current)
 {
-  while (prev < current) {
-    ++prev;
-    if (prev % 2 == 0) {
-      if (prev % 10 == 0) {
-	fprintf(fpo, "%d", prev / 10);
-	fflush(fpo);
-      } else {
-	fprintf(fpo, ".");
-	fflush(fpo);
-      }
-    }
-  }
-  return prev;
+	while (prev < current) {
+		++prev;
+		if (prev % 2 == 0) {
+			if (prev % 10 == 0) {
+				fprintf(fpo, "%d", prev / 10);
+				fflush(fpo);
+			}
+			else {
+				fprintf(fpo, ".");
+				fflush(fpo);
+			}
+		}
+	}
+	return prev;
 }
 
 /**
@@ -69,136 +70,139 @@ static int progress(FILE *fpo, int prev, int current)
  * @return number of instances read
  */
 int read_data(FILE *fpi, FILE *fpo, crfsuite_data_t* data, int group, \
-	      crfsuite_trainer_t *trainer)
+	crfsuite_trainer_t *trainer)
 {
-  crfsuite_dictionary_t *attrs = data->attrs;
-  crfsuite_dictionary_t *labels = data->labels;
-  crfsuite_dictionary_t *node_labels = data->node_labels;
+	crfsuite_dictionary_t *attrs = data->attrs;
+	crfsuite_dictionary_t *labels = data->labels;
+	crfsuite_dictionary_t *node_labels = data->node_labels;
 
-  int n = 0;
-  int lid = -1;
-  int ftype = trainer->ftype;
-  unsigned attr_cnt = 0;
-  crfsuite_instance_t inst;
-  crfsuite_item_t item;
-  crfsuite_attribute_t cont;
-  iwa_t* iwa = NULL;
-  const iwa_token_t *token = NULL;
-  long filesize = 0, begin = 0, offset = 0;
-  int prev = 0, current = 0, ret = 0;
+	int n = 0;
+	int lid = -1;
+	int ftype = trainer->ftype;
+	unsigned attr_cnt = 0;
+	crfsuite_instance_t inst;
+	crfsuite_item_t item;
+	crfsuite_attribute_t cont;
+	iwa_t* iwa = NULL;
+	const iwa_token_t *token = NULL;
+	long filesize = 0, begin = 0, offset = 0;
+	int prev = 0, current = 0, ret = 0;
 
-  /* Initialize instance.*/
-  crfsuite_instance_init(&inst);
-  inst.group = group;
+	/* Initialize instance.*/
+	crfsuite_instance_init(&inst);
+	inst.group = group;
 
-  /* Obtain file size. */
-  begin = ftell(fpi);
-  fseek(fpi, 0, SEEK_END);
-  filesize = ftell(fpi) - begin;
-  fseek(fpi, begin, SEEK_SET);
+	/* Obtain file size. */
+	begin = ftell(fpi);
+	fseek(fpi, 0, SEEK_END);
+	filesize = ftell(fpi) - begin;
+	fseek(fpi, begin, SEEK_SET);
 
-  /* */
-  fprintf(fpo, "0");
-  fflush(fpo);
-  prev = 0;
+	/* */
+	fprintf(fpo, "0");
+	fflush(fpo);
+	prev = 0;
 
-  iwa = iwa_reader(fpi);
-  while ((token = iwa_read(iwa))) {
-    /* Progress report. */
-    offset = ftell(fpi);
-    current = (int)((offset - begin) * 100.0 / (double)filesize);
-    prev = progress(fpo, prev, current);
+	iwa = iwa_reader(fpi);
+	while ((token = iwa_read(iwa))) {
+		/* Progress report. */
+		offset = ftell(fpi);
+		current = (int)((offset - begin) * 100.0 / (double)filesize);
+		prev = progress(fpo, prev, current);
 
-    switch (token->type) {
-    case IWA_BOI:
-      /* Initialize an item. */
-      lid = -1;
-      attr_cnt = 0;
-      crfsuite_item_init(&item);
-      break;
+		switch (token->type) {
+		case IWA_BOI:
+			/* Initialize an item. */
+			lid = -1;
+			attr_cnt = 0;
+			crfsuite_item_init(&item);
+			break;
 
-    case IWA_EOI:
-      /* check that node id is specified for tree CRF's */
-      if (ftype == FTYPE_CRF1TREE && attr_cnt < 2) {
-	fprintf(stderr, "ERROR: Incorrect number of attributes for tree (%d instead of %d)",
-		attr_cnt, 2);
-	n = 5;
-	goto clear_exit;
-      }
+		case IWA_EOI:
+			/* check that node id is specified for tree CRF's */
+			if (ftype == FTYPE_CRF1TREE && attr_cnt < 2) {
+				fprintf(stderr, "ERROR: Incorrect number of attributes for tree (%d instead of %d)",
+					attr_cnt, 2);
+				n = 5;
+				goto clear_exit;
+			}
 
-      if (0 <= lid)
-	crfsuite_instance_append(&inst, &item, lid);
+			if (0 <= lid)
+				crfsuite_instance_append(&inst, &item, lid);
 
-      crfsuite_item_finish(&item);
-      break;
+			crfsuite_item_finish(&item);
+			break;
 
-    case IWA_ITEM:
-      ++attr_cnt;
-      if (lid == -1) {
-	lid = labels->get(labels, token->attr);
-      } else {
-	if (ftype == FTYPE_CRF1TREE) {
-	  if (attr_cnt == 2) {
-	    // check that same id is not used twice for different nodes within
-	    // an instance
-	    item.id = node_labels->get(node_labels, token->attr);
-	    // remember string label of this node
-	    item.node_label = (char *) malloc(sizeof(char) * (strlen(token->attr) + 1));
-	    if (item.node_label) {
-	      // be sure to delete node_label at the end
-	      strcpy(item.node_label, token->attr);
-	    } else {
-	      fprintf(stderr, "ERROR: Could not allocate memory for storing node label '%s'.\n", token->attr);
-	      goto clear_exit;
-	    }
-	    break;
-	  } else if (attr_cnt == 3) {
-	    if (strcmp(token->attr, "_") == 0)
-	      item.prnt = -1;
-	    else
-	      item.prnt = node_labels->get(node_labels, token->attr);
-	    break;
-	  }
+		case IWA_ITEM:
+			++attr_cnt;
+			if (lid == -1) {
+				lid = labels->get(labels, token->attr);
+			}
+			else {
+				if (ftype == FTYPE_CRF1TREE) {
+					if (attr_cnt == 2) {
+						// check that same id is not used twice for different nodes within
+						// an instance
+						item.id = node_labels->get(node_labels, token->attr);
+						// remember string label of this node
+						item.node_label = (char *)malloc(sizeof(char) * (strlen(token->attr) + 1));
+						if (item.node_label) {
+							// be sure to delete node_label at the end
+							strcpy(item.node_label, token->attr);
+						}
+						else {
+							fprintf(stderr, "ERROR: Could not allocate memory for storing node label '%s'.\n", token->attr);
+							goto clear_exit;
+						}
+						break;
+					}
+					else if (attr_cnt == 3) {
+						if (strcmp(token->attr, "_") == 0)
+							item.prnt = -1;
+						else
+							item.prnt = node_labels->get(node_labels, token->attr);
+						break;
+					}
+				}
+				crfsuite_attribute_init(&cont);
+				cont.aid = attrs->get(attrs, token->attr);
+				if (token->value && *token->value)
+					cont.value = atof(token->value);
+				else
+					cont.value = 1.0;
+				crfsuite_item_append_attribute(&item, &cont);
+			}
+			break;
+
+		case IWA_NONE:
+		case IWA_EOF:
+			/* perform some sanity check and create a tree from nodes */
+			if (ftype == FTYPE_CRF1TREE && (ret = crfsuite_tree_init(&inst)) != 0) {
+				fprintf(stderr, "ERROR: Could not create tree for training instance '%d'.\n", n);
+				n = -1;
+				goto clear_exit;
+			}
+			/* Add training instance to data. */
+			crfsuite_data_append(data, &inst);
+			crfsuite_instance_finish(&inst);
+
+			inst.group = group;
+			++n;
+
+			/* clear dictionary of node labels so that new instances will
+		   have dense representation of node ids again */
+			if (ftype == FTYPE_CRF1TREE)
+				node_labels->reset(node_labels);
+
+			break;
+		}
 	}
-	crfsuite_attribute_init(&cont);
-	cont.aid = attrs->get(attrs, token->attr);
-	if (token->value && *token->value)
-	  cont.value = atof(token->value);
-	else
-	  cont.value = 1.0;
-	crfsuite_item_append_attribute(&item, &cont);
-      }
-      break;
+	progress(fpo, prev, 100);
+	fprintf(fpo, "\n");
 
-    case IWA_NONE:
-    case IWA_EOF:
-      /* perform some sanity check and create a tree from nodes */
-      if (ftype == FTYPE_CRF1TREE && (ret = crfsuite_tree_init(&inst)) != 0) {
-	fprintf(stderr, "ERROR: Could not create tree for training instance '%d'.\n", n);
-	n = -1;
-	goto clear_exit;
-      }
-      /* Add training instance to data. */
-      crfsuite_data_append(data, &inst);
-      crfsuite_instance_finish(&inst);
+clear_exit:
+	if (ftype == FTYPE_CRF1TREE)
+		node_labels->reset(node_labels);
 
-      inst.group = group;
-      ++n;
-
-      /* clear dictionary of node labels so that new instances will
-	 have dense representation of node ids again */
-      if (ftype == FTYPE_CRF1TREE)
-	node_labels->reset(node_labels);
-
-      break;
-    }
-  }
-  progress(fpo, prev, 100);
-  fprintf(fpo, "\n");
-
- clear_exit:
-  if (ftype == FTYPE_CRF1TREE)
-    node_labels->reset(node_labels);
-
-  return n;
+	return n;
 }

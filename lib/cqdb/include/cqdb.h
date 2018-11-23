@@ -29,54 +29,54 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __CQDB_H__
 # define    __CQDB_H__
 
 # include <stdio.h>
- #include <stdlib.h>
+#include <stdlib.h>
 
 
 /** @file */
 
 
 
-/** 
+/**
  * \addtogroup cqdb_const CQDB Constants
  * @{
  *
  *    The CQDB Constants.
  */
 
-/**
- * CQDB flags.
- */
+ /**
+  * CQDB flags.
+  */
 enum {
-    CQDB_NONE = 0,                        /**< No flag. */
-    CQDB_ONEWAY = 0x00000001,            /**< A reverse lookup array is omitted. */
-    CQDB_ERROR_OCCURRED = 0x00010000,    /**< An error has occurred. */
+	CQDB_NONE = 0,                        /**< No flag. */
+	CQDB_ONEWAY = 0x00000001,            /**< A reverse lookup array is omitted. */
+	CQDB_ERROR_OCCURRED = 0x00010000,    /**< An error has occurred. */
 };
 
 /**
  * CQDB status codes.
  */
 enum {
-    CQDB_SUCCESS = 0,                    /**< Success. */
-    CQDB_ERROR = -1024,                    /**< Unspecified error. */
-    CQDB_ERROR_NOTFOUND,                /**< String not found. */
-    CQDB_ERROR_OUTOFMEMORY,                /**< Insufficient memory. */
-    CQDB_ERROR_FILEWRITE,                /**< Error in fwrite() operations. */
-    CQDB_ERROR_FILETELL,                /**< Error in ftell() operations. */
-    CQDB_ERROR_FILESEEK,                /**< Error in fseek() operations. */
-    CQDB_ERROR_INVALIDID,                /**< Invalid parameters. */
+	CQDB_SUCCESS = 0,                    /**< Success. */
+	CQDB_ERROR = -1024,                    /**< Unspecified error. */
+	CQDB_ERROR_NOTFOUND,                /**< String not found. */
+	CQDB_ERROR_OUTOFMEMORY,                /**< Insufficient memory. */
+	CQDB_ERROR_FILEWRITE,                /**< Error in fwrite() operations. */
+	CQDB_ERROR_FILETELL,                /**< Error in ftell() operations. */
+	CQDB_ERROR_FILESEEK,                /**< Error in fseek() operations. */
+	CQDB_ERROR_INVALIDID,                /**< Invalid parameters. */
 };
 
 /** @} */
 
 
 
-/** 
+/**
  * \addtogroup cqdb_writer CQDB Writer API
  * @{
  *
@@ -152,7 +152,7 @@ int cqdb_writer_close(cqdb_writer_t* dbw);
 
 
 
-/** 
+/**
  * \addtogroup cqdb_reader CQDB Reader API
  * @{
  *
@@ -164,7 +164,7 @@ int cqdb_writer_close(cqdb_writer_t* dbw);
  *    etc.
  *    Secondaly, one can design the file format freely only if the memory
  *    block for a database is extracted from the file.
- *    
+ *
  *    The most fundamental operation on the CQDB reader API is forward lookup
  *    through the use of cqdb_to_id() function, which retrieves integer
  *    identifiers from strings. Reverse lookup (retrieving strings from integer
@@ -283,7 +283,7 @@ modify associations, nor check collisions in strings and identifiers; thus,
 it may be necessary to use an existing Quark implementation to manage proper
 associations between strings and identifiers on memory.
 
-This library is used by the 
+This library is used by the
 <a href="http://www.chokkan.org/software/crfsuite/">CRFsuite</a> project.
 
 @section download Download
@@ -295,10 +295,10 @@ CQDB is distributed under the term of the
 
 @section changelog History
 - Version 1.1 (2007-12-01):
-    - Fixed a bug when a CQDB chunk is embedded to a file.
+	- Fixed a bug when a CQDB chunk is embedded to a file.
 
 - Version 1.0 (2007-09-20):
-    - Initial release.
+	- Initial release.
 
 @section api Documentation
 
@@ -325,48 +325,48 @@ string/identifier associations,
 
 int main(int argc, char *argv[])
 {
-    int i, ret;
-    char str[10];
-    FILE *fp = NULL;
-    cqdb_writer_t* dbw = NULL;
+	int i, ret;
+	char str[10];
+	FILE *fp = NULL;
+	cqdb_writer_t* dbw = NULL;
 
-    // Open a file for writing.
-    fp = fopen(DBNAME, "wb");
-    if (fp == NULL) {
-        fprintf(stderr, "ERROR: failed to open the file.\n");
-        return 1;
-    }
+	// Open a file for writing.
+	fp = fopen(DBNAME, "wb");
+	if (fp == NULL) {
+		fprintf(stderr, "ERROR: failed to open the file.\n");
+		return 1;
+	}
 
-    // Create a CQDB on the file stream.
-    dbw = cqdb_writer(fp, 0);
-    if (dbw == NULL) {
-        fprintf(stderr, "ERROR: failed to create a CQDB on the file.\n");
-        goto error_exit;
-    }
+	// Create a CQDB on the file stream.
+	dbw = cqdb_writer(fp, 0);
+	if (dbw == NULL) {
+		fprintf(stderr, "ERROR: failed to create a CQDB on the file.\n");
+		goto error_exit;
+	}
 
-    // Put string/integer associations, "00000001"/1, ..., "01000000"/1000000.
-    for (i = 0;i < NUMELEMS;++i) {
-        sprintf(str, "%08d", i);
-        if (ret = cqdb_writer_put(dbw, str, i)) {
-            fprintf(stderr, "ERROR: failed to put a pair '%s'/%d.\n", str, i);
-            goto error_exit;    
-        }
-    }
+	// Put string/integer associations, "00000001"/1, ..., "01000000"/1000000.
+	for (i = 0;i < NUMELEMS;++i) {
+		sprintf(str, "%08d", i);
+		if (ret = cqdb_writer_put(dbw, str, i)) {
+			fprintf(stderr, "ERROR: failed to put a pair '%s'/%d.\n", str, i);
+			goto error_exit;
+		}
+	}
 
-    // Close the CQDB.
-    if (ret = cqdb_writer_close(dbw)) {
-        fprintf(stderr, "ERROR: failed to close the CQDB.\n");        
-        goto error_exit;
-    }
+	// Close the CQDB.
+	if (ret = cqdb_writer_close(dbw)) {
+		fprintf(stderr, "ERROR: failed to close the CQDB.\n");
+		goto error_exit;
+	}
 
-    // Close the file.
-    fclose(fp);
-    return 0;
+	// Close the file.
+	fclose(fp);
+	return 0;
 
 error_exit:
-    if (dbw != NULL) cqdb_writer_close(dbw);
-    if (fp != NULL) fclose(fp);
-    return 1;
+	if (dbw != NULL) cqdb_writer_close(dbw);
+	if (fp != NULL) fclose(fp);
+	return 1;
 }
 
 @endcode
@@ -375,7 +375,7 @@ error_exit:
 
 This sample code issues string queries "00000000", ..., "01000000" to retrive
 integer identifiers (forward lookups) and integer queries 0, ..., 1000000 to
-retrieve the strings  "00000000", ..., "01000000". 
+retrieve the strings  "00000000", ..., "01000000".
 
 @code
 
@@ -389,73 +389,73 @@ retrieve the strings  "00000000", ..., "01000000".
 
 int main(int argc, char *argv[])
 {
-    int i, j, ret;
-    long size = 0;
-    char str[10], *value = NULL, *buffer = NULL;
-    FILE *fp = NULL;
-    cqdb_t* db = NULL;
+	int i, j, ret;
+	long size = 0;
+	char str[10], *value = NULL, *buffer = NULL;
+	FILE *fp = NULL;
+	cqdb_t* db = NULL;
 
-    // Open the database.
-    fp = fopen(DBNAME, "rb");
-    if (fp == NULL) {
-        fprintf(stderr, "ERROR: failed to open the file\n");
-        return 1;
-    }
+	// Open the database.
+	fp = fopen(DBNAME, "rb");
+	if (fp == NULL) {
+		fprintf(stderr, "ERROR: failed to open the file\n");
+		return 1;
+	}
 
-    // Obtain the file size.
-    fseek(fp, 0, SEEK_END);
-    size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
+	// Obtain the file size.
+	fseek(fp, 0, SEEK_END);
+	size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
 
-    // Read the content of the file at a time.
-    buffer = (char *)malloc(size);
-    if (buffer == NULL) {
-        fprintf(stderr, "ERROR: out of memory.\n");
-        goto error_exit;
-    }
-    fread(buffer, 1, size, fp);
-    fclose(fp);
-    fp = NULL;
+	// Read the content of the file at a time.
+	buffer = (char *)malloc(size);
+	if (buffer == NULL) {
+		fprintf(stderr, "ERROR: out of memory.\n");
+		goto error_exit;
+	}
+	fread(buffer, 1, size, fp);
+	fclose(fp);
+	fp = NULL;
 
-    // Open the database on the memory.
-    db = cqdb_reader(buffer, size);
-    if (db == NULL) {
-        fprintf(stderr, "ERROR: failed to open a CQDB on the file.\n");
-        goto error_exit;
-    }
+	// Open the database on the memory.
+	db = cqdb_reader(buffer, size);
+	if (db == NULL) {
+		fprintf(stderr, "ERROR: failed to open a CQDB on the file.\n");
+		goto error_exit;
+	}
 
-    // Forward lookups: strings to integer identifiers.
-    for (i = 0;i < NUMELEMS;++i) {
-        sprintf(str, "%08d", i);
-        j = cqdb_to_id(db, str);
-        // Validity check.
-        if (j < 0 || i != j) {
-            fprintf(stderr, "ERROR: inconsistency error '%s'/%d.\n", str, i);
-            goto error_exit;    
-        }
-    }
+	// Forward lookups: strings to integer identifiers.
+	for (i = 0;i < NUMELEMS;++i) {
+		sprintf(str, "%08d", i);
+		j = cqdb_to_id(db, str);
+		// Validity check.
+		if (j < 0 || i != j) {
+			fprintf(stderr, "ERROR: inconsistency error '%s'/%d.\n", str, i);
+			goto error_exit;
+		}
+	}
 
-    // Reverse lookups: integer identifiers to strings.
-    for (i = 0;i < NUMELEMS;++i) {
-        sprintf(str, "%08d", i);
-        value = cqdb_to_string(db, i);
-        // Validity check.
-        if (value == NULL || strcmp(str, value) != 0) {
-            fprintf(stderr, "ERROR: inconsistency error '%s'/%d.\n", str, i);
-            goto error_exit;    
-        }
-    }
+	// Reverse lookups: integer identifiers to strings.
+	for (i = 0;i < NUMELEMS;++i) {
+		sprintf(str, "%08d", i);
+		value = cqdb_to_string(db, i);
+		// Validity check.
+		if (value == NULL || strcmp(str, value) != 0) {
+			fprintf(stderr, "ERROR: inconsistency error '%s'/%d.\n", str, i);
+			goto error_exit;
+		}
+	}
 
-    // Delete the instance of the CQDB.
-    cqdb_delete(db);
-    free(buffer);
+	// Delete the instance of the CQDB.
+	cqdb_delete(db);
+	free(buffer);
 
-    return 0;
+	return 0;
 
 error_exit:
-    if (fp != NULL) fclose(fp);
-    if (buffer != NULL) free(buffer);
-    return 1;
+	if (fp != NULL) fclose(fp);
+	if (buffer != NULL) free(buffer);
+	return 1;
 }
 
 @endcode

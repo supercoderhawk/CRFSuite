@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __OS_H__
 #define    __OS_H__

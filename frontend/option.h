@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __OPTION_H__
 #define    __OPTION_H__
@@ -37,12 +37,12 @@
 extern "C" {
 #endif/*__cplusplus*/
 
-typedef int (*option_handler_t)(void *instance, char c, const char *longname, const char *arg);
+	typedef int(*option_handler_t)(void *instance, char c, const char *longname, const char *arg);
 
-int option_parse(char * const argv[], int num_argv, option_handler_t handler, void *instance);
-int option_strcmp(const char *option, const char *longname);
+	int option_parse(char * const argv[], int num_argv, option_handler_t handler, void *instance);
+	int option_strcmp(const char *option, const char *longname);
 
-/** The begin of inline option map. */
+	/** The begin of inline option map. */
 #define    BEGIN_OPTION_MAP(name, type) \
     int name(void *instance, char __c, const char *__longname, const char *arg) \
     { \

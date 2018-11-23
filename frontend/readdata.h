@@ -28,12 +28,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __READDATA_H__
 #define    __READDATA_H__
 
 int read_data(FILE *fpi, FILE *fpo, crfsuite_data_t* data, int group, \
-	      crfsuite_trainer_t *trainer);
+	crfsuite_trainer_t *trainer);
 
 #endif/*__READDATA_H__*/

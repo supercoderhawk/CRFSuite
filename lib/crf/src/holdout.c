@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifdef    HAVE_CONFIG_H
 #include <config.h>
@@ -42,43 +42,43 @@
 #include "logging.h"
 
 void holdout_evaluation(
-    encoder_t *gm,
-    dataset_t *ds,
-    const floatval_t *w,
-    logging_t *lg
-    )
+	encoder_t *gm,
+	dataset_t *ds,
+	const floatval_t *w,
+	logging_t *lg
+)
 {
-    int i;
-    crfsuite_evaluation_t eval;
-    const int N = ds->num_instances;
-    int *viterbi = NULL;
-    int max_length = 0;
+	int i;
+	crfsuite_evaluation_t eval;
+	const int N = ds->num_instances;
+	int *viterbi = NULL;
+	int max_length = 0;
 
-    /* Initialize the evaluation table. */
-    crfsuite_evaluation_init(&eval, ds->data->labels->num(ds->data->labels));
+	/* Initialize the evaluation table. */
+	crfsuite_evaluation_init(&eval, ds->data->labels->num(ds->data->labels));
 
-    gm->set_weights(gm, w, 1.);
+	gm->set_weights(gm, w, 1.);
 
-    const void *aux = NULL;
-    for (i = 0;i < N;++i) {
-        floatval_t score;
-        const crfsuite_instance_t *inst = dataset_get(ds, i);
+	const void *aux = NULL;
+	for (i = 0; i < N; ++i) {
+		floatval_t score;
+		const crfsuite_instance_t *inst = dataset_get(ds, i);
 
-	if (gm->ftype == FTYPE_CRF1TREE)
-	  aux = (const void *) inst->tree;
+		if (gm->ftype == FTYPE_CRF1TREE)
+			aux = (const void *)inst->tree;
 
-        if (max_length < inst->num_items) {
-            free(viterbi);
-            viterbi = (int*) malloc(sizeof(int) * inst->num_items);
-        }
+		if (max_length < inst->num_items) {
+			free(viterbi);
+			viterbi = (int*)malloc(sizeof(int) * inst->num_items);
+		}
 
-        gm->set_instance(gm, inst);
-        gm->viterbi(gm, viterbi, &score, aux);
+		gm->set_instance(gm, inst);
+		gm->viterbi(gm, viterbi, &score, aux);
 
-        crfsuite_evaluation_accumulate(&eval, inst->labels, viterbi, inst->num_items);
-    }
+		crfsuite_evaluation_accumulate(&eval, inst->labels, viterbi, inst->num_items);
+	}
 
-    /* Report the performance. */
-    crfsuite_evaluation_finalize(&eval);
-    crfsuite_evaluation_output(&eval, ds->data->labels, lg->func, lg->instance);
+	/* Report the performance. */
+	crfsuite_evaluation_finalize(&eval);
+	crfsuite_evaluation_output(&eval, ds->data->labels, lg->func, lg->instance);
 }
