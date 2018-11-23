@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __CRF1D_H__
 #define    __CRF1D_H__
@@ -40,17 +40,17 @@
 /**
  * \defgroup crf1d_context.c
  */
-/** @{ */
+ /** @{ */
 
-/**
- * Functionality flags for contexts.
- *  @see    crf1dc_new().
- */
+ /**
+  * Functionality flags for contexts.
+  *  @see    crf1dc_new().
+  */
 enum {
-    CTXF_BASE       = 0x01,
-    CTXF_VITERBI    = 0x01,
-    CTXF_MARGINALS  = 0x02,
-    CTXF_ALL        = 0xFF,
+	CTXF_BASE = 0x01,
+	CTXF_VITERBI = 0x01,
+	CTXF_MARGINALS = 0x02,
+	CTXF_ALL = 0xFF,
 };
 
 /**
@@ -58,9 +58,9 @@ enum {
  *  @see    crf1dc_reset().
  */
 enum {
-    RF_STATE    = 0x01,     /**< Reset state scores. */
-    RF_TRANS    = 0x02,     /**< Reset transition scores. */
-    RF_ALL      = 0xFF,     /**< Reset all. */
+	RF_STATE = 0x01,     /**< Reset state scores. */
+	RF_TRANS = 0x02,     /**< Reset transition scores. */
+	RF_ALL = 0xFF,     /**< Reset all. */
 };
 
 /**
@@ -68,112 +68,112 @@ enum {
  *  This structure maintains internal data for an instance.
  */
 typedef struct {
-    /**
-     * Flag specifying the functionality.
-     */
-    int flag;
+	/**
+	 * Flag specifying the functionality.
+	 */
+	int flag;
 
-    /**
-     * The total number of distinct labels (L).
-     */
-    int num_labels;
+	/**
+	 * The total number of distinct labels (L).
+	 */
+	int num_labels;
 
-    /**
-     * The number of items (T) in the instance.
-     */
-    int num_items;
+	/**
+	 * The number of items (T) in the instance.
+	 */
+	int num_items;
 
-    /**
-     * The maximum number of labels.
-     */
-    int cap_items;
+	/**
+	 * The maximum number of labels.
+	 */
+	int cap_items;
 
-    /**
-     * Logarithm of the normalization factor for the instance.
-     *  This is equivalent to the total scores of all paths in the lattice.
-     */
-    floatval_t log_norm;
+	/**
+	 * Logarithm of the normalization factor for the instance.
+	 *  This is equivalent to the total scores of all paths in the lattice.
+	 */
+	floatval_t log_norm;
 
-    /**
-     * State scores.
-     *  This is a [T][L] matrix whose element [t][l] presents total score
-     *  of state features associating label #l at #t.
-     */
-    floatval_t *state;
+	/**
+	 * State scores.
+	 *  This is a [T][L] matrix whose element [t][l] presents total score
+	 *  of state features associating label #l at #t.
+	 */
+	floatval_t *state;
 
-    /**
-     * Transition scores.
-     *  This is a [L][L] matrix whose element [i][j] represents the total
-     *  score of transition features associating labels #i and #j.
-     */
-    floatval_t *trans;
+	/**
+	 * Transition scores.
+	 *  This is a [L][L] matrix whose element [i][j] represents the total
+	 *  score of transition features associating labels #i and #j.
+	 */
+	floatval_t *trans;
 
-    /**
-     * Alpha score matrix.
-     *  This is a [T][L] matrix whose element [t][l] presents the total
-     *  score of paths starting at BOS and arraiving at (t, l).
-     */
-    floatval_t *alpha_score;
+	/**
+	 * Alpha score matrix.
+	 *  This is a [T][L] matrix whose element [t][l] presents the total
+	 *  score of paths starting at BOS and arraiving at (t, l).
+	 */
+	floatval_t *alpha_score;
 
-    /**
-     * Beta score matrix.
-     *  This is a [T][L] matrix whose element [t][l] presents the total
-     *  score of paths starting at (t, l) and arraiving at EOS.
-     */
-    floatval_t *beta_score;
+	/**
+	 * Beta score matrix.
+	 *  This is a [T][L] matrix whose element [t][l] presents the total
+	 *  score of paths starting at (t, l) and arraiving at EOS.
+	 */
+	floatval_t *beta_score;
 
-    /**
-     * Scale factor vector.
-     *  This is a [T] vector whose element [t] presents the scaling
-     *  coefficient for the alpha_score and beta_score.
-     */
-    floatval_t *scale_factor;
+	/**
+	 * Scale factor vector.
+	 *  This is a [T] vector whose element [t] presents the scaling
+	 *  coefficient for the alpha_score and beta_score.
+	 */
+	floatval_t *scale_factor;
 
-    /**
-     * Row vector (work space).
-     *  This is a [T] vector used internally for a work space.
-     */
-    floatval_t *row;
+	/**
+	 * Row vector (work space).
+	 *  This is a [T] vector used internally for a work space.
+	 */
+	floatval_t *row;
 
-    /**
-     * Backward edges.
-     *  This is a [T][L] matrix whose element [t][j] represents the label #i
-     *  that yields the maximum score to arrive at (t, j).
-     *  This member is available only with CTXF_VITERBI flag enabled.
-     */
-    int *backward_edge;
+	/**
+	 * Backward edges.
+	 *  This is a [T][L] matrix whose element [t][j] represents the label #i
+	 *  that yields the maximum score to arrive at (t, j).
+	 *  This member is available only with CTXF_VITERBI flag enabled.
+	 */
+	int *backward_edge;
 
-    /**
-     * Exponents of state scores.
-     *  This is a [T][L] matrix whose element [t][l] presents the exponent
-     *  of the total score of state features associating label #l at #t.
-     *  This member is available only with CTXF_MARGINALS flag.
-     */
-    floatval_t *exp_state;
+	/**
+	 * Exponents of state scores.
+	 *  This is a [T][L] matrix whose element [t][l] presents the exponent
+	 *  of the total score of state features associating label #l at #t.
+	 *  This member is available only with CTXF_MARGINALS flag.
+	 */
+	floatval_t *exp_state;
 
-    /**
-     * Exponents of transition scores.
-     *  This is a [L][L] matrix whose element [i][j] represents the exponent
-     *  of the total score of transition features associating labels #i and #j.
-     *  This member is available only with CTXF_MARGINALS flag.
-     */
-    floatval_t *exp_trans;
+	/**
+	 * Exponents of transition scores.
+	 *  This is a [L][L] matrix whose element [i][j] represents the exponent
+	 *  of the total score of transition features associating labels #i and #j.
+	 *  This member is available only with CTXF_MARGINALS flag.
+	 */
+	floatval_t *exp_trans;
 
-    /**
-     * Model expectations of states.
-     *  This is a [T][L] matrix whose element [t][l] presents the model
-     *  expectation (marginal probability) of the state (t,l)
-     *  This member is available only with CTXF_MARGINALS flag.
-     */
-    floatval_t *mexp_state;
+	/**
+	 * Model expectations of states.
+	 *  This is a [T][L] matrix whose element [t][l] presents the model
+	 *  expectation (marginal probability) of the state (t,l)
+	 *  This member is available only with CTXF_MARGINALS flag.
+	 */
+	floatval_t *mexp_state;
 
-    /**
-     * Model expectations of transitions.
-     *  This is a [L][L] matrix whose element [i][j] presents the model
-     *  expectation of the transition (i--j).
-     *  This member is available only with CTXF_MARGINALS flag.
-     */
-    floatval_t *mexp_trans;
+	/**
+	 * Model expectations of transitions.
+	 *  This is a [L][L] matrix whose element [i][j] presents the model
+	 *  expectation of the transition (i--j).
+	 *  This member is available only with CTXF_MARGINALS flag.
+	 */
+	floatval_t *mexp_trans;
 
 } crf1d_context_t;
 
@@ -221,46 +221,46 @@ void crf1dc_debug_context(FILE *fp);
 /**
  * \defgroup crf1d_feature.c
  */
-/** @{ */
+ /** @{ */
 
-/**
- * Feature type.
- */
+ /**
+  * Feature type.
+  */
 enum {
-    FT_STATE = 0,    /**< State features. */
-    FT_TRANS,        /**< Transition features. */
+	FT_STATE = 0,    /**< State features. */
+	FT_TRANS,        /**< Transition features. */
 };
 
 /**
  * A feature (for either state or transition).
  */
 typedef struct {
-    /**
-     * Feature type.
-     *    Possible values are:
-     *    - FT_STATE (0) for state features.
-     *    - FT_TRANS (1) for transition features.
-     */
-    int        type;
+	/**
+	 * Feature type.
+	 *    Possible values are:
+	 *    - FT_STATE (0) for state features.
+	 *    - FT_TRANS (1) for transition features.
+	 */
+	int        type;
 
-    /**
-     * Source id.
-     *    The semantic of this field depends on the feature type:
-     *    - attribute id for state features (type == 0).
-     *    - output label id for transition features (type != 0).
-     */
-    int        src;
+	/**
+	 * Source id.
+	 *    The semantic of this field depends on the feature type:
+	 *    - attribute id for state features (type == 0).
+	 *    - output label id for transition features (type != 0).
+	 */
+	int        src;
 
-    /**
-     * Destination id.
-     *    Label id emitted by this feature.
-     */
-    int        dst;
+	/**
+	 * Destination id.
+	 *    Label id emitted by this feature.
+	 */
+	int        dst;
 
-    /**
-     * Frequency (observation expectation).
-     */
-    floatval_t    freq;
+	/**
+	 * Frequency (observation expectation).
+	 */
+	floatval_t    freq;
 } crf1df_feature_t;
 
 /**
@@ -268,30 +268,30 @@ typedef struct {
  *    This is a collection of feature ids used for faster accesses.
  */
 typedef struct {
-    int        num_features;    /**< Number of features referred */
-    int*    fids;            /**< Array of feature ids */
+	int        num_features;    /**< Number of features referred */
+	int*    fids;            /**< Array of feature ids */
 } feature_refs_t;
 
 crf1df_feature_t* crf1df_generate(
-    int *ptr_num_features,
-    dataset_t *ds,
-    int num_labels,
-    int num_attributes,
-    int connect_all_attrs,
-    int connect_all_edges,
-    floatval_t minfreq,
-    crfsuite_logging_callback func,
-    void *instance
-    );
+	int *ptr_num_features,
+	dataset_t *ds,
+	int num_labels,
+	int num_attributes,
+	int connect_all_attrs,
+	int connect_all_edges,
+	floatval_t minfreq,
+	crfsuite_logging_callback func,
+	void *instance
+);
 
 int crf1df_init_references(
-    feature_refs_t **ptr_attributes,
-    feature_refs_t **ptr_trans,
-    const crf1df_feature_t *features,
-    const int K,
-    const int A,
-    const int L
-    );
+	feature_refs_t **ptr_attributes,
+	feature_refs_t **ptr_trans,
+	const crf1df_feature_t *features,
+	const int K,
+	const int A,
+	const int L
+);
 
 /** @} */
 
@@ -300,7 +300,7 @@ int crf1df_init_references(
 /**
  * \defgroup crf1d_model.c
  */
-/** @{ */
+ /** @{ */
 
 struct tag_crf1dm;
 typedef struct tag_crf1dm crf1dm_t;
@@ -309,10 +309,10 @@ struct tag_crf1dmw;
 typedef struct tag_crf1dmw crf1dmw_t;
 
 typedef struct {
-    int        type;
-    int        src;
-    int        dst;
-    floatval_t weight;
+	int        type;
+	int        src;
+	int        dst;
+	floatval_t weight;
 } crf1dm_feature_t;
 
 crf1dmw_t* crf1mmw(const char *filename);

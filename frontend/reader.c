@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #include <os.h>
 
@@ -41,115 +41,120 @@
 
 static int progress(FILE *fpo, int prev, int current)
 {
-    while (prev < current) {
-        ++prev;
-        if (prev % 2 == 0) {
-            if (prev % 10 == 0) {
-                fprintf(fpo, "%d", prev / 10);
-                fflush(fpo);
-            } else {
-                fprintf(fpo, ".");
-                fflush(fpo);
-            }
-        }
-    }
-    return prev;
+	while (prev < current) {
+		++prev;
+		if (prev % 2 == 0) {
+			if (prev % 10 == 0) {
+				fprintf(fpo, "%d", prev / 10);
+				fflush(fpo);
+			}
+			else {
+				fprintf(fpo, ".");
+				fflush(fpo);
+			}
+		}
+	}
+	return prev;
 }
 
 int read_data(FILE *fpi, FILE *fpo, crfsuite_data_t* data, int group)
 {
-    int n = 0;
-    int lid = -1;
-    crfsuite_instance_t inst;
-    crfsuite_item_t item;
-    crfsuite_attribute_t cont;
-    iwa_t* iwa = NULL;
-    crfsuite_dictionary_t *attrs = data->attrs;
-    crfsuite_dictionary_t *labels = data->labels;
-    const iwa_token_t *token = NULL;
-    long filesize = 0, begin = 0, offset = 0;
-    int prev = 0, current = 0;
+	int n = 0;
+	int lid = -1;
+	crfsuite_instance_t inst;
+	crfsuite_item_t item;
+	crfsuite_attribute_t cont;
+	iwa_t* iwa = NULL;
+	crfsuite_dictionary_t *attrs = data->attrs;
+	crfsuite_dictionary_t *labels = data->labels;
+	const iwa_token_t *token = NULL;
+	long filesize = 0, begin = 0, offset = 0;
+	int prev = 0, current = 0;
 
-    /* Initialize the instance.*/
-    crfsuite_instance_init(&inst);
-    inst.group = group;
+	/* Initialize the instance.*/
+	crfsuite_instance_init(&inst);
+	inst.group = group;
 
-    /* Obtain the file size. */
-    begin = ftell(fpi);
-    fseek(fpi, 0, SEEK_END);
-    filesize = ftell(fpi) - begin;
-    fseek(fpi, begin, SEEK_SET);
+	/* Obtain the file size. */
+	begin = ftell(fpi);
+	fseek(fpi, 0, SEEK_END);
+	filesize = ftell(fpi) - begin;
+	fseek(fpi, begin, SEEK_SET);
 
-    /* */
-    fprintf(fpo, "0");
-    fflush(fpo);
-    prev = 0;
+	/* */
+	fprintf(fpo, "0");
+	fflush(fpo);
+	prev = 0;
 
-    iwa = iwa_reader(fpi);
-    while (token = iwa_read(iwa), token != NULL) {
-        /* Progress report. */
-        offset = ftell(fpi);
-        current = (int)((offset - begin) * 100.0 / (double)filesize);
-        prev = progress(fpo, prev, current);
+	iwa = iwa_reader(fpi);
+	while (token = iwa_read(iwa), token != NULL) {
+		/* Progress report. */
+		offset = ftell(fpi);
+		current = (int)((offset - begin) * 100.0 / (double)filesize);
+		prev = progress(fpo, prev, current);
 
-        switch (token->type) {
-        case IWA_BOI:
-            /* Initialize an item. */
-            lid = -1;
-            crfsuite_item_init(&item);
-            break;
-        case IWA_EOI:
-            /* Append the item to the instance. */
-            if (0 <= lid) {
-                crfsuite_instance_append(&inst, &item, lid);
-            }
-            crfsuite_item_finish(&item);
-            break;
-        case IWA_ITEM:
-            if (lid == -1) {
-                if (strncmp(token->attr, "@", 1) == 0) {
-                    /* Declaration. */
-                    if (strcmp(token->attr, "@weight") == 0) {
-                        /* Instance weighting. */
-                        inst.weight = atof(token->value);
-                    } else {
-                        /* Unrecognized declaration. */
-                        fprintf(fpo, "\n");
-                        fprintf(fpo, "ERROR: unrecognized declaration: %s\n", token->attr);
-                        iwa_delete(iwa);
-                        return -1;
-                    }
-                } else {
-                    /* Label. */
-                    lid = labels->get(labels, token->attr);
-                }
-            } else {
-                crfsuite_attribute_init(&cont);
-                cont.aid = attrs->get(attrs, token->attr);
-                if (token->value && *token->value) {
-                    cont.value = atof(token->value);
-                } else {
-                    cont.value = 1.0;
-                }
-                crfsuite_item_append_attribute(&item, &cont);
-            }
-            break;
-        case IWA_NONE:
-        case IWA_EOF:
-            /* Put the training instance. */
-            crfsuite_data_append(data, &inst);
-            crfsuite_instance_finish(&inst);
-            inst.group = group;
-            inst.weight = 1.;
-            ++n;
-            break;
-        }
-    }
+		switch (token->type) {
+		case IWA_BOI:
+			/* Initialize an item. */
+			lid = -1;
+			crfsuite_item_init(&item);
+			break;
+		case IWA_EOI:
+			/* Append the item to the instance. */
+			if (0 <= lid) {
+				crfsuite_instance_append(&inst, &item, lid);
+			}
+			crfsuite_item_finish(&item);
+			break;
+		case IWA_ITEM:
+			if (lid == -1) {
+				if (strncmp(token->attr, "@", 1) == 0) {
+					/* Declaration. */
+					if (strcmp(token->attr, "@weight") == 0) {
+						/* Instance weighting. */
+						inst.weight = atof(token->value);
+					}
+					else {
+						/* Unrecognized declaration. */
+						fprintf(fpo, "\n");
+						fprintf(fpo, "ERROR: unrecognized declaration: %s\n", token->attr);
+						iwa_delete(iwa);
+						return -1;
+					}
+				}
+				else {
+					/* Label. */
+					lid = labels->get(labels, token->attr);
+				}
+			}
+			else {
+				crfsuite_attribute_init(&cont);
+				cont.aid = attrs->get(attrs, token->attr);
+				if (token->value && *token->value) {
+					cont.value = atof(token->value);
+				}
+				else {
+					cont.value = 1.0;
+				}
+				crfsuite_item_append_attribute(&item, &cont);
+			}
+			break;
+		case IWA_NONE:
+		case IWA_EOF:
+			/* Put the training instance. */
+			crfsuite_data_append(data, &inst);
+			crfsuite_instance_finish(&inst);
+			inst.group = group;
+			inst.weight = 1.;
+			++n;
+			break;
+		}
+	}
 
-    progress(fpo, prev, 100);
-    fprintf(fpo, "\n");
+	progress(fpo, prev, 100);
+	fprintf(fpo, "\n");
 
-    iwa_delete(iwa);
+	iwa_delete(iwa);
 
-    return n;
+	return n;
 }

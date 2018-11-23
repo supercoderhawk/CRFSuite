@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __IWA_H__
 #define    __IWA_H__
@@ -37,26 +37,26 @@
 extern "C" {
 #endif/*__cplusplus*/
 
-typedef struct tag_iwa iwa_t;
+	typedef struct tag_iwa iwa_t;
 
-enum {
-    IWA_NONE,
-    IWA_EOF,
-    IWA_BOI,
-    IWA_EOI,
-    IWA_ITEM,
-};
+	enum {
+		IWA_NONE,
+		IWA_EOF,
+		IWA_BOI,
+		IWA_EOI,
+		IWA_ITEM,
+	};
 
-struct tag_iwa_token {
-    int type;
-    const char *attr;
-    const char *value;
-};
-typedef struct tag_iwa_token iwa_token_t;
+	struct tag_iwa_token {
+		int type;
+		const char *attr;
+		const char *value;
+	};
+	typedef struct tag_iwa_token iwa_token_t;
 
-iwa_t* iwa_reader(FILE *fp);
-const iwa_token_t* iwa_read(iwa_t* iwa);
-void iwa_delete(iwa_t* iwa);
+	iwa_t* iwa_reader(FILE *fp);
+	const iwa_token_t* iwa_read(iwa_t* iwa);
+	void iwa_delete(iwa_t* iwa);
 
 #ifdef    __cplusplus
 }

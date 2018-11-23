@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifndef    __PARAMS_H__
 #define    __PARAMS_H__
@@ -39,9 +39,9 @@ int params_add_float(crfsuite_params_t* params, const char *name, floatval_t val
 int params_add_string(crfsuite_params_t* params, const char *name, const char *value, const char *help);
 
 enum {
-    PARAMS_READ = -1,
-    PARAMS_INIT = 0,
-    PARAMS_WRITE = 1,
+	PARAMS_READ = -1,
+	PARAMS_INIT = 0,
+	PARAMS_WRITE = 1,
 };
 
 #define    BEGIN_PARAM_MAP(params, mode) \

@@ -28,7 +28,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* $Id$ */
+ /* $Id$ */
 
 #ifdef    HAVE_CONFIG_H
 #include <config.h>
@@ -42,65 +42,65 @@
 
 void dataset_init_trainset(dataset_t *ds, crfsuite_data_t *data, int holdout)
 {
-    int i, n = 0;
+	int i, n = 0;
 
-    for (i = 0;i < data->num_instances;++i) {
-        if (data->instances[i].group != holdout) {
-            ++n;
-        }
-    }
+	for (i = 0; i < data->num_instances; ++i) {
+		if (data->instances[i].group != holdout) {
+			++n;
+		}
+	}
 
-    ds->data = data;
-    ds->num_instances = n;
-    ds->perm = (int*)malloc(sizeof(int) * n);
+	ds->data = data;
+	ds->num_instances = n;
+	ds->perm = (int*)malloc(sizeof(int) * n);
 
-    n = 0;
-    for (i = 0;i < data->num_instances;++i) {
-        if (data->instances[i].group != holdout) {
-            ds->perm[n++] = i;
-        }
-    }    
+	n = 0;
+	for (i = 0; i < data->num_instances; ++i) {
+		if (data->instances[i].group != holdout) {
+			ds->perm[n++] = i;
+		}
+	}
 }
 
 void dataset_init_testset(dataset_t *ds, crfsuite_data_t *data, int holdout)
 {
-    int i, n = 0;
+	int i, n = 0;
 
-    for (i = 0;i < data->num_instances;++i) {
-        if (data->instances[i].group == holdout) {
-            ++n;
-        }
-    }
+	for (i = 0; i < data->num_instances; ++i) {
+		if (data->instances[i].group == holdout) {
+			++n;
+		}
+	}
 
-    ds->data = data;
-    ds->num_instances = n;
-    ds->perm = (int*)malloc(sizeof(int) * n);
+	ds->data = data;
+	ds->num_instances = n;
+	ds->perm = (int*)malloc(sizeof(int) * n);
 
-    n = 0;
-    for (i = 0;i < data->num_instances;++i) {
-        if (data->instances[i].group == holdout) {
-            ds->perm[n++] = i;
-        }
-    }
+	n = 0;
+	for (i = 0; i < data->num_instances; ++i) {
+		if (data->instances[i].group == holdout) {
+			ds->perm[n++] = i;
+		}
+	}
 }
 
 void dataset_finish(dataset_t *ds)
 {
-    free(ds->perm);
+	free(ds->perm);
 }
 
 void dataset_shuffle(dataset_t *ds)
 {
-    int i;
-    for (i = 0;i < ds->num_instances;++i) {
-        int j = rand() % ds->num_instances;
-        int tmp = ds->perm[j];
-        ds->perm[j] = ds->perm[i];
-        ds->perm[i] = tmp;
-    }
+	int i;
+	for (i = 0; i < ds->num_instances; ++i) {
+		int j = rand() % ds->num_instances;
+		int tmp = ds->perm[j];
+		ds->perm[j] = ds->perm[i];
+		ds->perm[i] = tmp;
+	}
 }
 
 crfsuite_instance_t *dataset_get(dataset_t *ds, int i)
 {
-    return &ds->data->instances[ds->perm[i]];
+	return &ds->data->instances[ds->perm[i]];
 }
