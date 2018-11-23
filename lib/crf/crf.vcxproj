@@ -102,7 +102,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>lbfgs_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lbfgs.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)win32\liblbfgs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference>
