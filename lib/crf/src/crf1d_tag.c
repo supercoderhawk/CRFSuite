@@ -615,7 +615,3 @@ int crf1m_create_instance_from_file(const char *filename, void **ptr, const int 
 {
 	return crf1m_model_create(filename, (crfsuite_model_t**)ptr, ftype);
 }
-int crf1m_create_instance_from_memory(const void *data, size_t size, void **ptr)
-{
-    return crf1m_model_create(crf1dm_new_from_memory(data, size), ptr);
-}

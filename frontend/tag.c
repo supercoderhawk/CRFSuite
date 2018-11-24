@@ -188,7 +188,7 @@ output_result(
 
 	for (i = 0; i < inst->num_items; ++i) {
 		const char *label = NULL;
-
+		floatval_t prob;
 		if (opt->reference) {
 			labels->to_string(labels, inst->labels[i], &label);
 			fprintf(fpo, "%s\t", label);
@@ -200,14 +200,13 @@ output_result(
 		labels->free(labels, label);
 
 		if (opt->marginal) {
-			floatval_t prob;
 			tagger->marginal_point(tagger, output[i], i, &prob, aux);
 			fprintf(fpo, ":%f", prob);
 		}
 
         if (opt->marginal_all) {
-            for (l = 0; l < labels->num(labels); ++l) {
-                tagger->marginal_point(tagger, l, i, &prob);
+            for (int l = 0; l < labels->num(labels); ++l) {
+                tagger->marginal_point(tagger, l, i, &prob, aux);
                 labels->to_string(labels, l, &label);
                 fprintf(fpo, "\t%s:%f", label, prob);
                 labels->free(labels, label);

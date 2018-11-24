@@ -185,11 +185,13 @@
     <ClCompile Include="src\logging.c" />
     <ClCompile Include="src\params.c" />
     <ClCompile Include="src\quark.c" />
+    <ClCompile Include="src\ring.c" />
     <ClCompile Include="src\rumavl.c" />
     <ClCompile Include="src\crf1d_context.c" />
     <ClCompile Include="src\crf1d_feature.c" />
     <ClCompile Include="src\crf1d_model.c" />
     <ClCompile Include="src\crf1d_tag.c" />
+    <ClCompile Include="src\semimarkov.c" />
     <ClCompile Include="src\train_arow.c" />
     <ClCompile Include="src\train_averaged_perceptron.c" />
     <ClCompile Include="src\train_l2sgd.c" />
@@ -205,7 +207,9 @@
     <ClInclude Include="src\logging.h" />
     <ClInclude Include="src\params.h" />
     <ClInclude Include="src\quark.h" />
+    <ClInclude Include="src\ring.h" />
     <ClInclude Include="src\rumavl.h" />
+    <ClInclude Include="src\semimarkov.h" />
     <ClInclude Include="src\vecmath.h" />
     <ClInclude Include="src\crf1d.h" />
   </ItemGroup>

@@ -248,7 +248,7 @@ static int crf1de_cmp_lseq(const void *a_entry1, const void *a_entry2,	\
   const crf1de_state_t *entry2 = (const crf1de_state_t *) a_entry2;
 
   /* number of labels in both sequences */
-  const int n = entry1->m_len;
+  const size_t n = entry1->m_len;
 
   if (n > entry2->m_len)
     return RUMAVL_ASC;
@@ -256,7 +256,7 @@ static int crf1de_cmp_lseq(const void *a_entry1, const void *a_entry2,	\
     return RUMAVL_DESC;
 
   /* consecutively check every tag */
-  for (int i = 0; i < n; ++i) {
+  for (size_t i = 0; i < n; ++i) {
     if ((ret = entry1->m_seq[i] - entry2->m_seq[i]))
       break;
   }
@@ -326,7 +326,7 @@ static int semimarkov_build_frw_transitions(crf1de_semimarkov_t *sm)
   /* in the first run, populate the `m_frw_llabels` array and
      calculate the number of prefixes */
   size_t pk_len;
-  int y, pk_id, pky_id, last_label;
+  int pk_id, pky_id, last_label;
   const int *pk_start = NULL;
 
   RUMAVL_NODE *node = NULL;
@@ -348,9 +348,9 @@ static int semimarkov_build_frw_transitions(crf1de_semimarkov_t *sm)
        possible tags */
     sm->m_wrkbench1.m_len = pk_len + 1;
     memcpy((void *) &sm->m_wrkbench1.m_seq[1], (const void *) pk_start, pk_len * sizeof(int));
-    for (y = 0; y < sm->L; ++y) {
+    for (size_t y = 0; y < sm->L; ++y) {
       if (y == last_label && sm->m_seg_len_lim < 0)
-	continue;
+		continue;
 
       /* find which `pky` state corresponds to give `pk` prefix */
       sm->m_wrkbench1.m_seq[0] = y;
@@ -508,7 +508,7 @@ static int semimarkov_build_bkw_transitions(crf1de_semimarkov_t *sm)
   }
 
   size_t pky_len;
-  int y, pky_id, ptrn_id, last_label, *pky_seq = NULL, *bkw_trans = sm->m_bkw_trans;
+  int pky_id, ptrn_id, last_label, *pky_seq = NULL, *bkw_trans = sm->m_bkw_trans;
 
   RUMAVL_NODE *node = NULL;
   crf1de_state_t *pky_entry = NULL, *ptrn_entry = NULL;
@@ -538,7 +538,7 @@ static int semimarkov_build_bkw_transitions(crf1de_semimarkov_t *sm)
     sm->m_wrkbench1.m_len = pky_len + 1;
     memcpy((void *) &sm->m_wrkbench1.m_seq[1], (const void *) pky_seq, pky_len * sizeof(int));
 
-    for (y = 0; y < sm->L; ++y) {
+    for (size_t y = 0; y < sm->L; ++y) {
       if (y == last_label && sm->m_seg_len_lim < 0) {
 	pky_entry->m_bkw_trans[y] = -1;
       } else {
@@ -674,7 +674,7 @@ static void semimarkov_add_bkw_states(crf1de_semimarkov_t *sm, crf1de_state_t *a
   int last_label = a_wrkbench->m_seq[1];
 
   /* append all possible tags to given prefix */
-  for (int i = 0; i < sm->L; ++i) {
+  for (size_t i = 0; i < sm->L; ++i) {
     if (i == last_label && sm->m_seg_len_lim < 0)
       continue;
 
@@ -737,7 +737,7 @@ static void semimarkov_initialize_states(crf1de_semimarkov_t *sm)
   sm->m_wrkbench1.m_len = 1;
   sm->m_wrkbench2.m_len = 2;
 
-  for (int i = 0; i < sm->L; ++i) {
+  for (size_t i = 0; i < sm->L; ++i) {
     sm->m_wrkbench2.m_seq[1] = sm->m_wrkbench1.m_seq[0] = i;
 
     /* add label to the set of prefixes (forward states) */
@@ -873,7 +873,7 @@ static void semimarkov_generate_edges_helper(crf1de_semimarkov_t *sm, size_t a_o
   a_wrkbench->m_len = a_order + 1;
   a_wrkbench->m_freq = 0;
 
-  for (int i = 0; i < sm->L; ++i) {
+  for (size_t i = 0; i < sm->L; ++i) {
     if (i == a_prev_label && sm->m_seg_len_lim < 0)
       continue;
 

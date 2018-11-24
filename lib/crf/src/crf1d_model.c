@@ -1066,11 +1066,6 @@ error_exit:
 	return NULL;
 }
 
-crf1dm_t* crf1dm_new_from_memory(const void *data, size_t size)
-{
-	return crf1dm_new_impl(NULL, data, size);
-}
-
 void crf1dm_close(crf1dm_t* model)
 {
 	if (model->labels != NULL) {
@@ -1343,7 +1338,7 @@ void crf1dm_dump(crf1dm_t* crf1dm, FILE *fp)
 		fprintf(fp, "\n");
 
 		const char *label = NULL;
-		for (int i = 0; i < sm->L; ++i) {
+		for (size_t i = 0; i < sm->L; ++i) {
 			label = crf1dm_to_label(crf1dm, i);
 			fprintf(fp, "  max_seg_len[%s] = %d\n", label, sm->m_max_seg_len[i]);
 		}
