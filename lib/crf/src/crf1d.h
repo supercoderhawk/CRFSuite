@@ -209,6 +209,7 @@ typedef struct {
 	 *  This member is available only with CTXF_MARGINALS flag.
 	 */
 	floatval_t *mexp_trans;
+
 } crf1d_context_t;
 
 #define    MATRIX(p, xl, x, y)        ((p)[(xl) * (y) + (x)])

@@ -45,6 +45,7 @@
 int crf1de_create_instance(const char *iid, void **ptr);
 int crfsuite_dictionary_create_instance(const char *interface, void **ptr);
 int crf1m_create_instance_from_file(const char *filename, void **ptr, const int ftype);
+int crf1m_create_instance_from_memory(const void *data, size_t size, void **ptr);
 
 static void swap_vars(int *a, int *b, int *tmp)
 {
@@ -66,6 +67,12 @@ int crfsuite_create_instance_from_file(const char *filename, void **ptr, const i
 {
 	int ret = crf1m_create_instance_from_file(filename, ptr, ftype);
 	return ret;
+}
+
+int crfsuite_create_instance_from_memory(const void *data, size_t size, void **ptr)
+{
+    int ret = crf1m_create_instance_from_memory(data, size, ptr);
+    return ret;
 }
 
 void crfsuite_attribute_init(crfsuite_attribute_t* cont)
@@ -478,6 +485,7 @@ error_exit:
 void crfsuite_instance_init(crfsuite_instance_t* inst)
 {
 	memset(inst, 0, sizeof(*inst));
+	inst->weight = 1.;
 }
 
 void crfsuite_instance_init_n(crfsuite_instance_t* inst, int num_items)
@@ -509,6 +517,7 @@ void crfsuite_instance_copy(crfsuite_instance_t* dst, const crfsuite_instance_t*
 	dst->group = src->group;
 	dst->num_items = src->num_items;
 	dst->cap_items = src->cap_items;
+    dst->weight = src->weight;
 	dst->items = (crfsuite_item_t*)calloc(dst->num_items, sizeof(crfsuite_item_t));
 	if (dst->items == NULL) {
 		fprintf(stderr, "ERROR: Could not allocate memory for items copy.\n");
@@ -553,6 +562,7 @@ void crfsuite_instance_swap(crfsuite_instance_t* x, crfsuite_instance_t* y)
 	x->labels = y->labels;
 	x->group = y->group;
 	x->tree = y->tree;
+    x->weight = y->weight;
 
 	y->num_items = tmp.num_items;
 	y->cap_items = tmp.cap_items;
@@ -560,6 +570,7 @@ void crfsuite_instance_swap(crfsuite_instance_t* x, crfsuite_instance_t* y)
 	y->labels = tmp.labels;
 	y->group = tmp.group;
 	y->tree = tmp.tree;
+    y->weight = tmp.weight;
 }
 
 int crfsuite_instance_append(crfsuite_instance_t* inst, const crfsuite_item_t* item, int label)
@@ -582,6 +593,8 @@ int crfsuite_instance_empty(crfsuite_instance_t* inst)
 {
 	return (inst->num_items == 0);
 }
+
+
 
 
 void crfsuite_data_init(crfsuite_data_t* data)
@@ -661,6 +674,13 @@ int  crfsuite_data_totalitems(crfsuite_data_t* data)
 		n += data->instances[i].num_items;
 	}
 	return n;
+}
+
+static char *safe_strncpy(char *dst, const char *src, size_t n)
+{
+	strncpy(dst, src, n - 1);
+	dst[n - 1] = 0;
+	return dst;
 }
 
 void crfsuite_evaluation_init(crfsuite_evaluation_t* eval, int n)

@@ -4,7 +4,7 @@
 	- [CORE] added preliminary support for semi-Markov and
 	linear-chain CRFs or arbitrary orders (specify --type=semim).
 
-	
+
 2011-08-11  Naoaki Okazaki  <okazaki at chokkan org>
 	* CRFsuite 0.12
 	- [CORE] Optimized the implementation for faster training; approximately 1.4-1.5 x speed up.

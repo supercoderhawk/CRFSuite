@@ -75,7 +75,7 @@ int main_dump(int argc, char *argv[], const char *argv0)
 	int ret = 0, arg_used = 0;
 	dump_option_t opt;
 	const char *command = argv[0];
-	FILE *fpo = stdout, *fpe = stderr;
+	FILE *fp = NULL, *fpi = stdin, *fpo = stdout, *fpe = stderr;
 	crfsuite_model_t *model = NULL;
 
 	/* Parse the command-line option. */

@@ -183,13 +183,13 @@ crf1dmw_t* crf1mmw(const char *filename, const int ftype)
 
 	/* Fill the members in the header. */
 	header = &writer->header;
-	strncpy((char *)header->magic, FILEMAGIC, 4);
+    memcpy(header->magic, FILEMAGIC, 4);
 	if (ftype == FTYPE_CRF1TREE)
-		strncpy((char *)header->type, MODELTYPE_TREE, 4);
+        memcpy(header->type, MODELTYPE_TREE, 4);
 	else if (ftype == FTYPE_SEMIMCRF)
-		strncpy((char *)header->type, MODELTYPE_SEMIM, 4);
+        memcpy(header->type, MODELTYPE_SEMIM, 4);
 	else
-		strncpy((char *)header->type, MODELTYPE_CRF1D, 4);
+        memcpy(header->type, MODELTYPE_CRF1D, 4);
 	header->version = VERSION_NUMBER;
 
 	/* Advance the file position to skip the file header. */
@@ -396,7 +396,7 @@ int crf1dmw_open_labelrefs(crf1dmw_t* writer, int num_labels)
 	fseek(fp, size, SEEK_CUR);
 
 	/* Fill members in the feature reference header. */
-	strncpy((char *)href->chunk, CHUNK_LABELREF, 4);
+	memcpy(href->chunk, CHUNK_LABELREF, 4);
 	href->size = 0;
 	href->num = num_labels;
 
@@ -445,7 +445,7 @@ int crf1dmw_close_labelrefs(crf1dmw_t* writer)
 int crf1dmw_put_labelref(crf1dmw_t* writer, int lid, const feature_refs_t* ref, int *map)
 {
 	int i, fid;
-	uint32_t n = 0;
+	uint32_t n = 0, offset = 0;
 	FILE *fp = writer->fp;
 	featureref_header_t* href = writer->href;
 
@@ -503,7 +503,7 @@ int crf1dmw_open_attrrefs(crf1dmw_t* writer, int num_attrs)
 	fseek(fp, size, SEEK_CUR);
 
 	/* Fill members in the feature reference header. */
-	strncpy((char *)href->chunk, CHUNK_ATTRREF, 4);
+	memcpy(href->chunk, CHUNK_ATTRREF, 4);
 	href->size = 0;
 	href->num = num_attrs;
 
@@ -552,7 +552,7 @@ int crf1dmw_close_attrrefs(crf1dmw_t* writer)
 int crf1dmw_put_attrref(crf1dmw_t* writer, int aid, const feature_refs_t* ref, int *map)
 {
 	int i, fid;
-	uint32_t n = 0;
+	uint32_t n = 0, offset = 0;
 	FILE *fp = writer->fp;
 	featureref_header_t* href = writer->href;
 
@@ -598,7 +598,7 @@ int crf1dmw_open_features(crf1dmw_t* writer)
 	writer->header.off_features = (uint32_t)ftell(fp);
 	fseek(fp, CHUNK_SIZE, SEEK_CUR);
 
-	strncpy((char *)hfeat->chunk, CHUNK_FEATURE, 4);
+	memcpy(hfeat->chunk, CHUNK_FEATURE, 4);
 	writer->hfeat = hfeat;
 
 	writer->state = WSTATE_FEATURES;
@@ -1064,6 +1064,11 @@ error_exit:
 		fclose(fp);
 	}
 	return NULL;
+}
+
+crf1dm_t* crf1dm_new_from_memory(const void *data, size_t size)
+{
+	return crf1dm_new_impl(NULL, data, size);
 }
 
 void crf1dm_close(crf1dm_t* model)

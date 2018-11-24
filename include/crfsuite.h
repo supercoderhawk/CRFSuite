@@ -38,6 +38,7 @@ extern "C" {
 #endif/*__cplusplus*/
 
 #include <float.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -201,6 +202,8 @@ extern "C" {
 		int         *labels;
 		/** Item tree. */
 		crfsuite_node_t  *tree;
+		/** Instance weight. */
+		floatval_t  weight;
 	} crfsuite_instance_t;
 
 	/**

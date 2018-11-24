@@ -58,6 +58,10 @@ static void option_init(option_t* opt)
 	memset(opt, 0, sizeof(*opt));
 }
 
+static void option_finish(option_t* opt)
+{
+}
+
 BEGIN_OPTION_MAP(parse_options, option_t)
 
 	ON_OPTION(SHORTOPT('h') || LONGOPT("help"))
@@ -95,7 +99,7 @@ int main(int argc, char *argv[])
 	int arg_used = 0;
 	const char *command = NULL;
 	const char *argv0 = argv[0];
-	FILE *fpo = stdout, *fpe = stderr;
+	FILE *fpi = stdin, *fpo = stdout, *fpe = stderr;
 
 	/* Parse the command-line option. */
 	option_init(&opt);

@@ -55,6 +55,7 @@ typedef struct {
 	int evaluate;
 	int probability;
 	int marginal;
+    int marginal_all;
 	int quiet;
 	int reference;
 	int help;
@@ -124,6 +125,9 @@ opt->probability = 1;
 ON_OPTION(SHORTOPT('i') || LONGOPT("marginal"))
 opt->marginal = 1;
 
+ON_OPTION(SHORTOPT('l') || LONGOPT("marginal-all"))
+opt->marginal_all = 1;
+
 ON_OPTION(SHORTOPT('q') || LONGOPT("quiet"))
 opt->quiet = 1;
 
@@ -154,6 +158,7 @@ static void show_usage(FILE *fp, const char *argv0, const char *command)
                     and `tree')\n");
 	fprintf(fp, "    -i, --marginal      Output the marginal probabilities of items (only for\n\
                     `1d' and `tree')\n");
+    fprintf(fp, "    -i, --marginal      Output the marginal probabilitiy of items for their predicted label\n");
 	fprintf(fp, "    -q, --quiet         Suppress tagging results (useful for test mode)\n");
 	fprintf(fp, "    -h, --help          Show the usage of this command and exit\n");
 }
@@ -177,6 +182,7 @@ output_result(
 	if (opt->probability) {
 		floatval_t lognorm = 0;
 		tagger->lognorm(tagger, &lognorm, aux);
+        fprintf(fpo, "@score\t%f\t%f\n", score, lognorm);
 		fprintf(fpo, "@probability\t%f\n", exp(score - lognorm));
 	}
 
@@ -198,6 +204,15 @@ output_result(
 			tagger->marginal_point(tagger, output[i], i, &prob, aux);
 			fprintf(fpo, ":%f", prob);
 		}
+
+        if (opt->marginal_all) {
+            for (l = 0; l < labels->num(labels); ++l) {
+                tagger->marginal_point(tagger, l, i, &prob);
+                labels->to_string(labels, l, &label);
+                fprintf(fpo, "\t%s:%f", label, prob);
+                labels->free(labels, label);
+            }
+        }
 
 		fprintf(fpo, "\n");
 	}
@@ -463,7 +478,7 @@ int main_tag(int argc, char *argv[], const char *argv0)
 	int ret = 0, arg_used = 0;
 	tagger_option_t opt;
 	const char *command = argv[0];
-	FILE *fpo = stdout;
+	FILE *fp = NULL, *fpi = stdin, *fpo = stdout, *fpe = stderr;
 	crfsuite_model_t *model = NULL;
 
 	/* Parse the command-line option. */

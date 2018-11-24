@@ -202,6 +202,7 @@ crf1de_state_score_scaled(
 	int i, t, r;
 	crf1d_context_t* ctx = crf1de->ctx;
 	const int T = inst->num_items;
+	const int L = crf1de->num_labels;
 
 	/* Forward to the non-scaling version for fast computation when scale == 1. */
 	if (scale == 1.) {

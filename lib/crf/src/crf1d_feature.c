@@ -246,7 +246,7 @@ crf1df_feature_t* crf1df_generate(int *ptr_num_features, \
 					chld_node_p = &seq->tree[node_p->children[i]];
 					f.src = seq->labels[chld_node_p->self_item_id];
 					f.dst = cur;
-					f.freq = 1;
+                    f.freq = seq->weight;
 					featureset_add(set, &f);
 				}
 				/* In semi-markov model, we generate all possible prefixes and affixes
@@ -267,7 +267,7 @@ crf1df_feature_t* crf1df_generate(int *ptr_num_features, \
 					f.type = FT_TRANS;
 					f.src = prev;
 					f.dst = cur;
-					f.freq = 1;
+					f.freq = seq->weight;
 					featureset_add(set, &f);
 				}
 			}
@@ -278,7 +278,7 @@ crf1df_feature_t* crf1df_generate(int *ptr_num_features, \
 				f.type = FT_STATE;
 				f.src = item->contents[c].aid;
 				f.dst = cur;
-				f.freq = item->contents[c].value;
+				f.freq = seq->weight * item->contents[c].value;
 				featureset_add(set, &f);
 
 				/* Generate state features connecting attributes with all

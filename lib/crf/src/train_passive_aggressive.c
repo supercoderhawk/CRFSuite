@@ -317,7 +317,7 @@ int crfsuite_train_passive_aggressive(
 
 	/* Loop for epoch. */
 	for (i = 0; i < opt.max_iterations; ++i) {
-		floatval_t sum_loss = 0.;
+		floatval_t norm = 0., sum_loss = 0.;
 		clock_t iteration_begin = clock();
 
 		/* Shuffle the instances. */

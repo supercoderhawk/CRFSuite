@@ -8,8 +8,16 @@ setup.py file for SWIG example
 # Imports
 from distutils.core import setup, Extension
 import os
+import os.path
 import re
 import sys
+
+def get_rootdir():
+    return '@prefix@'
+def get_includedir():
+    return os.path.join(get_rootdir(), 'include')
+def get_librarydir():
+    return os.path.join(get_rootdir(), 'lib')
 
 ##################################################################
 # Variables and Constants
@@ -29,6 +37,8 @@ crfsuite_module = Extension(
         "crfsuite.cpp",
         "export_wrap.cpp",
         ],
+    include_dirs=[get_includedir(),],
+    library_dirs=[get_librarydir(),],
     extra_link_args=["-shared"],
     libraries=["crfsuite"],
     language="c++",

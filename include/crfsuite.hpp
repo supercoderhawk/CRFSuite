@@ -40,6 +40,7 @@
 #include <iostream>
 #include <sstream>
 
+#include <crfsuite.h>
 #include "crfsuite_api.hpp"
 
 namespace CRFSuite
@@ -56,12 +57,12 @@ namespace CRFSuite
 
 	Trainer::~Trainer()
 	{
-		if (data) {
+		if (data!=NULL) {
 			clear();
 			delete data;
 			data = NULL;
 		}
-		if (tr) {
+		if (tr!=NULL) {
 			tr->release(tr);
 			tr = NULL;
 		}
@@ -487,6 +488,7 @@ namespace CRFSuite
 			const char *label = NULL;
 			if (m_labels->to_string(m_labels, path[t], &label) != 0) {
 				delete[] path;
+                m_labels->release(m_labels);
 				throw std::runtime_error("Failed to convert a label identifier to string.");
 			}
 			yseq[t] = label;
