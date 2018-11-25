@@ -205,12 +205,6 @@ static int crfsuite_train_train(crfsuite_trainer_t* self,
 	if (filename != NULL && *filename)
 		gm->save_model(gm, filename, w, lg);
 
-	/* Release model. */
-    if (0 <= holdout) {
-        dataset_finish(&testset);
-    }
-    dataset_finish(&trainset);
-    free(w);
 final_steps:
 	free(w);
 	return ret;
