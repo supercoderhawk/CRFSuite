@@ -389,6 +389,36 @@ namespace CRFSuite
 		}
 	}
 
+	StringList Tagger::labels()
+	{
+		int ret;
+		StringList lseq;
+		crfsuite_dictionary_t *labels = NULL;
+
+		if (model == NULL) {
+			throw std::invalid_argument("The tagger is not opened");
+		}
+
+		// Obtain the dictionary interface representing the labels in the model.
+		if ((ret = model->get_labels(model, &labels))) {
+			throw std::runtime_error("Failed to obtain the dictionary interface for labels");
+		}
+
+		// Collect all label strings to lseq.
+		for (int i = 0; i < labels->num(labels); ++i) {
+			const char *label = NULL;
+			if (labels->to_string(labels, i, &label) != 0) {
+				labels->release(labels);
+				throw std::runtime_error("Failed to convert a label identifier to string.");
+			}
+			lseq.push_back(label);
+			labels->free(labels, label);
+		}
+
+		labels->release(labels);
+		return lseq;
+	}
+
 	StringList Tagger::tag(ItemSequence& xseq)
 	{
 		set(xseq);

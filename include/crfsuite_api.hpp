@@ -343,6 +343,14 @@ namespace CRFSuite
 		void close();
 
 		/**
+		* Obtain the list of labels.
+		*  @return StringList  The list of labels in the model.
+		*  @throw  std::invalid_argument   A model is not opened.
+		*  @throw  std::runtime_error      An internal error.
+		*/
+		StringList labels();
+
+		/**
 		 * Predict the label sequence for the item sequence.
 		 *  This function calls set() and viterbi() functions to obtain the
 		 *  label sequence predicted for the item sequence.
