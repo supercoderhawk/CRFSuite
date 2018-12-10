@@ -483,6 +483,7 @@ int crf1dmw_put_sm_state(crf1dmw_t* writer, int sid, const crf1de_state_t *state
 	const crf1de_semimarkov_t* sm);
 
 crf1dm_t* crf1dm_new(const char *filename, const int ftype);
+crf1dm_t* crf1dm_new_from_memory(const void *data, size_t size, const int ftype);
 void crf1dm_close(crf1dm_t* model);
 int crf1dm_get_num_attrs(crf1dm_t* model);
 int crf1dm_get_num_labels(crf1dm_t* model);

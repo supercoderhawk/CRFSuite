@@ -381,6 +381,46 @@ namespace CRFSuite
 		return true;
 	}
 
+	bool Tagger::open(const void* data, std::size_t size, const int ftype)
+	{
+		m_ftype = ftype;
+		int ret;
+
+		// Close the model if it is already opened.
+		this->close();
+
+		// Open the model file.
+		if ((ret = crfsuite_create_instance_from_memory(data, size, (void**)&model, m_ftype))) {
+			return false;
+		}
+
+		// Obtain the tagger interface.
+		if ((ret = model->get_tagger(model, &tagger))) {
+			throw std::runtime_error("Failed to obtain the tagger interface");
+		}
+
+		// Obtain the dictionary interface representing the attributes in the model.
+		if ((ret = model->get_attrs(model, &m_attrs))) {
+			throw std::runtime_error("Failed to obtain the dictionary interface for attributes");
+		}
+
+		// Obtain the dictionary interface representing the labels in the model.
+		if ((ret = model->get_labels(model, &m_labels))) {
+			throw std::runtime_error("Failed to obtain the dictionary interface for labels");
+		}
+
+		// initialize auxiliary member
+		if (m_ftype == FTYPE_CRF1TREE) {
+			if (!(ret = crfsuite_create_instance("dictionary", (void**)&m_node_labels)))
+				throw std::runtime_error("Failed to create a dictionary instance for tree labels.");
+		}
+		else if (m_ftype == FTYPE_SEMIMCRF) {
+			model->get_sm(model, &m_aux);
+		}
+
+		return true;
+	}
+
 	void Tagger::close()
 	{
 		if (tagger != NULL) {

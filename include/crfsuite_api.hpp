@@ -338,6 +338,19 @@ namespace CRFSuite
 		bool open(const std::string& name, const int ftype = FTYPE_CRF1D);
 
 		/**
+		* Open a model from memory.
+		*  @param  data        A pointer to the model data.
+		*                      Must be 16-byte aligned.
+		*  @param  size        A size (in bytes) of the model data.
+		*  @param  ftype       Type of the model to be loaded.
+		*  @return bool        \c true if the model file is successfully opened,
+		*                      \c false otherwise (e.g., when the mode file is
+		*                      not found).
+		*  @throw  std::runtime_error      An internal error in the model.
+		*/
+		bool open(const void* data, std::size_t size, const int ftype = FTYPE_CRF1D);
+
+		/**
 		 * Close the model.
 		 */
 		void close();
