@@ -1331,7 +1331,7 @@ void crf1dm_dump(crf1dm_t* crf1dm, FILE *fp)
 	fprintf(fp, "}\n");
 
 	/* Dump semi-markov model. */
-	fprintf(fp, "SEMI-MARKOV MODEL = {\n");
+	fprintf(fp, "SEMI_MARKOV_MODEL = {\n");
 	if (sm) {
 		fprintf(fp, "  num_labels = %d\n", sm->L);
 		fprintf(fp, "  max_order = %zu\n", sm->m_max_order);
