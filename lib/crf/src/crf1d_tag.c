@@ -475,7 +475,131 @@ static int model_dump(crfsuite_model_t* model, FILE *fpo)
 	crf1dm_dump(internal->crf1dm, fpo);
 	return 0;
 }
+static int crf1m_model_create_by_object(const crf1dm_t *crf1dm, crfsuite_model_t** ptr_model, \
+	const int ftype)
+{
+	int ret = 0;
+	crf1dt_t *crf1dt = NULL;
+	crfsuite_model_t *model = NULL;
+	model_internal_t *internal = NULL;
+	crfsuite_tagger_t *tagger = NULL;
+	crfsuite_dictionary_t *attrs = NULL, *labels = NULL;
 
+	*ptr_model = NULL;
+	/* Construct a tagger based on the model. */
+	crf1dt = crf1dt_new(crf1dm, ftype);
+	if (crf1dt == NULL) {
+		ret = CRFSUITEERR_OUTOFMEMORY;
+		goto error_exit;
+	}
+
+	/* Create an instance of internal data attached to the model. */
+	internal = (model_internal_t *)calloc(1, sizeof(model_internal_t));
+	if (internal == NULL) {
+		ret = CRFSUITEERR_OUTOFMEMORY;
+		goto error_exit;
+	}
+
+	/* Create an instance of dictionary object for attributes. */
+	attrs = (crfsuite_dictionary_t*)calloc(1, sizeof(crfsuite_dictionary_t));
+	if (attrs == NULL) {
+		ret = CRFSUITEERR_OUTOFMEMORY;
+		goto error_exit;
+	}
+	attrs->internal = crf1dm;
+	attrs->nref = 1;
+	attrs->addref = model_attrs_addref;
+	attrs->release = model_attrs_release;
+	attrs->get = model_attrs_get;
+	attrs->to_id = model_attrs_to_id;
+	attrs->to_string = model_attrs_to_string;
+	attrs->num = model_attrs_num;
+	attrs->free = model_attrs_free;
+
+	/* Create an instance of dictionary object for labels. */
+	labels = (crfsuite_dictionary_t*)calloc(1, sizeof(crfsuite_dictionary_t));
+	if (labels == NULL) {
+		ret = CRFSUITEERR_OUTOFMEMORY;
+		goto error_exit;
+	}
+	labels->internal = crf1dm;
+	labels->nref = 1;
+	labels->addref = model_labels_addref;
+	labels->release = model_labels_release;
+	labels->get = model_labels_get;
+	labels->to_id = model_labels_to_id;
+	labels->to_string = model_labels_to_string;
+	labels->num = model_labels_num;
+	labels->free = model_labels_free;
+
+	/* Create an instance of tagger object. */
+	tagger = (crfsuite_tagger_t*)calloc(1, sizeof(crfsuite_tagger_t));
+	if (tagger == NULL) {
+		ret = CRFSUITEERR_OUTOFMEMORY;
+		goto error_exit;
+	}
+	tagger->internal = crf1dt;
+	tagger->nref = 1;
+	tagger->addref = tagger_addref;
+	tagger->release = tagger_release;
+	tagger->set = tagger_set;
+	tagger->length = tagger_length;
+	tagger->lognorm = tagger_lognorm;
+	tagger->marginal_point = tagger_marginal_point;
+	if (ftype == FTYPE_CRF1TREE) {
+		tagger->viterbi = tagger_tree_viterbi;
+		tagger->score = tagger_tree_score;
+		tagger->marginal_path = tagger_tree_marginal_path;
+	}
+	else if (ftype == FTYPE_SEMIMCRF) {
+		tagger->viterbi = tagger_sm_viterbi;
+		tagger->score = tagger_sm_score;
+		tagger->marginal_path = tagger_sm_marginal_path;
+	}
+	else {
+		tagger->viterbi = tagger_viterbi;
+		tagger->score = tagger_score;
+		tagger->marginal_path = tagger_marginal_path;
+	}
+	/* Set the internal data for the model object. */
+	internal->crf1dm = crf1dm;
+	internal->attrs = attrs;
+	internal->labels = labels;
+	internal->tagger = tagger;
+
+	/* Create an instance of model object. */
+	model = (crfsuite_model_t*)calloc(1, sizeof(crfsuite_model_t));
+	if (model == NULL) {
+		ret = CRFSUITEERR_OUTOFMEMORY;
+		goto error_exit;
+	}
+	model->internal = internal;
+	model->nref = 1;
+	model->addref = model_addref;
+	model->release = model_release;
+	model->get_attrs = model_get_attrs;
+	model->get_labels = model_get_labels;
+	model->get_tagger = model_get_tagger;
+	model->get_sm = model_get_sm;
+	model->dump = model_dump;
+
+	*ptr_model = model;
+	return 0;
+
+error_exit:
+	free(tagger);
+	free(labels);
+	free(attrs);
+	if (crf1dt != NULL) {
+		crf1dt_delete(crf1dt);
+	}
+	if (crf1dm != NULL) {
+		crf1dm_close(crf1dm);
+	}
+	free(internal);
+	free(model);
+	return ret;
+}
 static int crf1m_model_create(const char *filename, crfsuite_model_t** ptr_model, \
 	const int ftype)
 {
@@ -618,5 +742,5 @@ int crf1m_create_instance_from_file(const char *filename, void **ptr, const int 
 
 int crf1m_create_instance_from_memory(const void *data, size_t size, void **ptr, const int ftype)
 {
-	return crf1m_model_create(crf1dm_new_from_memory(data, size, ftype), ptr, ftype);
+	return crf1m_model_create_by_object(crf1dm_new_from_memory(data, size, ftype), ptr, ftype);
 }
