@@ -475,6 +475,7 @@ static int model_dump(crfsuite_model_t* model, FILE *fpo)
 	crf1dm_dump(internal->crf1dm, fpo);
 	return 0;
 }
+
 static int crf1m_model_create_by_object(const crf1dm_t *crf1dm, crfsuite_model_t** ptr_model, \
 	const int ftype)
 {
@@ -600,6 +601,7 @@ error_exit:
 	free(model);
 	return ret;
 }
+
 static int crf1m_model_create(const char *filename, crfsuite_model_t** ptr_model, \
 	const int ftype)
 {

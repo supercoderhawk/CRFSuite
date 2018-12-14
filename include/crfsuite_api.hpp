@@ -301,16 +301,16 @@ namespace CRFSuite
 	class Tagger
 	{
 	protected:
-		crfsuite_model_t *model = NULL;
-		crfsuite_tagger_t *tagger = NULL;
+		crfsuite_model_t *model;
+		crfsuite_tagger_t *tagger;
 		/// Mapping fromsymbolix features to indices
-		crfsuite_dictionary_t *m_attrs = NULL;
+		crfsuite_dictionary_t *m_attrs;
 		/// Auxiliary dictionary containing target labels
-		crfsuite_dictionary_t *m_labels = NULL;
+		crfsuite_dictionary_t *m_labels;
 		/// Auxiliary dictionary containing node labels
-		crfsuite_dictionary_t *m_node_labels = NULL;
+		crfsuite_dictionary_t *m_node_labels;
 		/// Reference either to the tree structure or semi-Markov dict or NULL
-		const void *m_aux = NULL;
+		const void *m_aux;
 		/// Type of CRF model
 		int m_ftype;
 

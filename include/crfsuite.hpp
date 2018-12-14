@@ -334,7 +334,14 @@ namespace CRFSuite
 	// all members are deault initialized in class
 	Tagger::Tagger() :
 		m_ftype(FTYPE_NONE)
-	{}
+	{
+		this->model = NULL;
+		this->tagger = NULL;
+		this->m_attrs = NULL;
+		this->m_labels = NULL;
+		this->m_node_labels = NULL;
+		this->m_aux = NULL;
+	}
 
 	Tagger::~Tagger()
 	{

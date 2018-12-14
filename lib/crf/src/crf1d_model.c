@@ -1339,7 +1339,7 @@ void crf1dm_dump(crf1dm_t* crf1dm, FILE *fp)
 	fprintf(fp, "}\n");
 	fprintf(fp, "\n");
 
-	/* Dump the transition features. */
+	/* Dump the state features. */
 	fprintf(fp, "STATE_FEATURES = {\n");
 	for (i = 0; i < hfile->num_attrs; ++i) {
 		crf1dm_get_attrref(crf1dm, i, &refs);
@@ -1396,7 +1396,7 @@ void crf1dm_dump(crf1dm_t* crf1dm, FILE *fp)
 				crf1dm_dump_sm_state(crf1dm, sm_afx_state1, fp);
 				fprintf(fp, ";\n");
 
-				/* output sufixes corresponding to that prefix */
+				/* output suffixes corresponding to that prefix */
 				fprintf(fp, "  suffixes[%zu][%zu] = %d (pos = %zu)", i, k, sm_state->m_frw_trans2[k], \
 					sm_state->m_frw_trans2[k] * (sm->m_max_order + 1));
 				suffixes = &SUFFIXES(sm, sm_state->m_frw_trans2[k], 0);
