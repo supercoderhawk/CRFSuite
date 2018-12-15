@@ -973,9 +973,8 @@ error_exit:
 	return NULL;
 }
 
-crf1dm_t* crf1dm_new(const char *filename, const int ftype)
+crf1dm_t* crf1dm_new_impl(uint8_t* buffer_orig, const uint8_t* buffer, uint32_t size, const int ftype) 
 {
-	FILE *fp = NULL;
 	uint8_t* p = NULL;
 	crf1dm_t *model = NULL;
 	header_t *header = NULL;
@@ -984,29 +983,20 @@ crf1dm_t* crf1dm_new(const char *filename, const int ftype)
 	if (model == NULL)
 		goto error_exit;
 
-	fp = fopen(filename, "rb");
-	if (fp == NULL)
-		goto error_exit;
+	model->buffer_orig = buffer_orig;
+	model->buffer = buffer;
+	model->size = size;
 
-	fseek(fp, 0, SEEK_END);
-	model->size = (uint32_t)ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-
-	model->buffer = (uint8_t*)malloc(model->size + 16);
-	model->buffer_orig = model->buffer;
-	while ((uintptr_t)model->buffer % 16 != 0) {
-		++model->buffer;
-	}
-
-	if (fread(model->buffer, 1, model->size, fp) != model->size) {
-		free(model->buffer_orig);
+	if (model->size <= sizeof(header_t)) {
 		goto error_exit;
 	}
-	fclose(fp);
-	fp = NULL;
 
+	
 	/* Write the file header. */
 	header = (header_t*)calloc(1, sizeof(header_t));
+	if (header == NULL) {
+		goto error_exit;
+	}
 
 	p = model->buffer;
 	p += read_uint8_array(p, header->magic, sizeof(header->magic));
@@ -1055,15 +1045,56 @@ crf1dm_t* crf1dm_new(const char *filename, const int ftype)
 		model->sm = NULL;
 	}
 	return model;
+error_exit:
+	free(header);
+	free(model);
+	free(buffer_orig);
+	return NULL;
+}
+
+crf1dm_t* crf1dm_new(const char *filename, const int ftype)
+{
+	FILE *fp = NULL;
+	uint32_t size = 0;
+	uint8_t* buffer_orig = NULL;
+	uint8_t* buffer = NULL;
+
+	fp = fopen(filename, "rb");
+	if (fp == NULL)
+		goto error_exit;
+	
+	fseek(fp, 0, SEEK_END);
+	size = (uint32_t)ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	buffer = buffer_orig = (uint8_t*)malloc(size + 16);
+	if (buffer_orig == NULL) {
+		goto error_exit;
+	}
+
+	/* Align the buffer to 16 bytes. */
+	while ((uintptr_t)buffer % 16 != 0) {
+		++buffer;
+	}
+
+	if (fread(buffer, 1, size, fp) != size) {
+		goto error_exit;
+	}
+	fclose(fp);
+
+	return crf1dm_new_impl(buffer_orig, buffer, size, ftype);
 
 error_exit:
-	if (model != NULL) {
-		free(model);
-	}
+	free(buffer_orig);
 	if (fp != NULL) {
 		fclose(fp);
 	}
 	return NULL;
+}
+
+crf1dm_t * crf1dm_new_from_memory(const void * data, size_t size, const int ftype)
+{
+	return crf1dm_new_impl(NULL, data, size, ftype);
 }
 
 void crf1dm_close(crf1dm_t* model)
@@ -1308,7 +1339,7 @@ void crf1dm_dump(crf1dm_t* crf1dm, FILE *fp)
 	fprintf(fp, "}\n");
 	fprintf(fp, "\n");
 
-	/* Dump the transition features. */
+	/* Dump the state features. */
 	fprintf(fp, "STATE_FEATURES = {\n");
 	for (i = 0; i < hfile->num_attrs; ++i) {
 		crf1dm_get_attrref(crf1dm, i, &refs);
@@ -1331,7 +1362,7 @@ void crf1dm_dump(crf1dm_t* crf1dm, FILE *fp)
 	fprintf(fp, "}\n");
 
 	/* Dump semi-markov model. */
-	fprintf(fp, "SEMI-MARKOV MODEL = {\n");
+	fprintf(fp, "SEMI_MARKOV_MODEL = {\n");
 	if (sm) {
 		fprintf(fp, "  num_labels = %d\n", sm->L);
 		fprintf(fp, "  max_order = %zu\n", sm->m_max_order);
@@ -1365,7 +1396,7 @@ void crf1dm_dump(crf1dm_t* crf1dm, FILE *fp)
 				crf1dm_dump_sm_state(crf1dm, sm_afx_state1, fp);
 				fprintf(fp, ";\n");
 
-				/* output sufixes corresponding to that prefix */
+				/* output suffixes corresponding to that prefix */
 				fprintf(fp, "  suffixes[%zu][%zu] = %d (pos = %zu)", i, k, sm_state->m_frw_trans2[k], \
 					sm_state->m_frw_trans2[k] * (sm->m_max_order + 1));
 				suffixes = &SUFFIXES(sm, sm_state->m_frw_trans2[k], 0);

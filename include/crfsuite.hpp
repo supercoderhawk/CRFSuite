@@ -240,6 +240,17 @@ namespace CRFSuite
 
 	int Trainer::train(const std::string& model, int holdout)
 	{
+		if (tr == NULL) {
+			std::stringstream ss;
+			ss << "The trainer is not initialized. Call Trainer::select before Trainer::train.";
+			throw std::invalid_argument(ss.str());
+		}
+
+		if (data->attrs == NULL || data->labels == NULL) {
+			std::stringstream ss;
+			ss << "The data is empty. Call Trainer::append before Trainer::train.";
+			throw std::invalid_argument(ss.str());
+		}
 		// Run the training algorithm.
 		return tr->train(tr, data, model.empty() ? NULL : model.c_str(), holdout);
 	}
@@ -295,7 +306,12 @@ namespace CRFSuite
 		std::string str;
 		crfsuite_params_t* params = tr->params(tr);
 		char *_str = NULL;
-		params->help(params, name.c_str(), NULL, &_str);
+		if (params->help(params, name.c_str(), NULL, &_str) != 0) {
+			std::stringstream ss;
+			ss << "Parameter not found: " << name;
+			params->release(params);
+			throw std::invalid_argument(ss.str());
+		}
 		str = _str;
 		params->free(params, _str);
 		params->release(params);
@@ -318,7 +334,14 @@ namespace CRFSuite
 	// all members are deault initialized in class
 	Tagger::Tagger() :
 		m_ftype(FTYPE_NONE)
-	{}
+	{
+		this->model = NULL;
+		this->tagger = NULL;
+		this->m_attrs = NULL;
+		this->m_labels = NULL;
+		this->m_node_labels = NULL;
+		this->m_aux = NULL;
+	}
 
 	Tagger::~Tagger()
 	{
@@ -335,6 +358,46 @@ namespace CRFSuite
 
 		// Open the model file.
 		if ((ret = crfsuite_create_instance_from_file(name.c_str(), (void**)&model, m_ftype))) {
+			return false;
+		}
+
+		// Obtain the tagger interface.
+		if ((ret = model->get_tagger(model, &tagger))) {
+			throw std::runtime_error("Failed to obtain the tagger interface");
+		}
+
+		// Obtain the dictionary interface representing the attributes in the model.
+		if ((ret = model->get_attrs(model, &m_attrs))) {
+			throw std::runtime_error("Failed to obtain the dictionary interface for attributes");
+		}
+
+		// Obtain the dictionary interface representing the labels in the model.
+		if ((ret = model->get_labels(model, &m_labels))) {
+			throw std::runtime_error("Failed to obtain the dictionary interface for labels");
+		}
+
+		// initialize auxiliary member
+		if (m_ftype == FTYPE_CRF1TREE) {
+			if (!(ret = crfsuite_create_instance("dictionary", (void**)&m_node_labels)))
+				throw std::runtime_error("Failed to create a dictionary instance for tree labels.");
+		}
+		else if (m_ftype == FTYPE_SEMIMCRF) {
+			model->get_sm(model, &m_aux);
+		}
+
+		return true;
+	}
+
+	bool Tagger::open(const void* data, std::size_t size, const int ftype)
+	{
+		m_ftype = ftype;
+		int ret;
+
+		// Close the model if it is already opened.
+		this->close();
+
+		// Open the model file.
+		if ((ret = crfsuite_create_instance_from_memory(data, size, (void**)&model, m_ftype))) {
 			return false;
 		}
 
@@ -387,6 +450,36 @@ namespace CRFSuite
 			m_attrs->release(m_attrs);
 			m_attrs = NULL;
 		}
+	}
+
+	StringList Tagger::labels()
+	{
+		int ret;
+		StringList lseq;
+		crfsuite_dictionary_t *labels = NULL;
+
+		if (model == NULL) {
+			throw std::invalid_argument("The tagger is not opened");
+		}
+
+		// Obtain the dictionary interface representing the labels in the model.
+		if ((ret = model->get_labels(model, &labels))) {
+			throw std::runtime_error("Failed to obtain the dictionary interface for labels");
+		}
+
+		// Collect all label strings to lseq.
+		for (int i = 0; i < labels->num(labels); ++i) {
+			const char *label = NULL;
+			if (labels->to_string(labels, i, &label) != 0) {
+				labels->release(labels);
+				throw std::runtime_error("Failed to convert a label identifier to string.");
+			}
+			lseq.push_back(label);
+			labels->free(labels, label);
+		}
+
+		labels->release(labels);
+		return lseq;
 	}
 
 	StringList Tagger::tag(ItemSequence& xseq)

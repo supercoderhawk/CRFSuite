@@ -823,6 +823,21 @@ extern "C" {
 	int crfsuite_create_instance_from_file(const char *filename, void **ptr, const int ftype);
 
 	/**
+	  * Create an instance of a model object from a model in memory.
+	  *  @param  data        A pointer to the model data.
+	  *                      Must be 16-byte aligned.
+	  *  @param  size        A size (in bytes) of the model data.
+	  *  @param  ptr         The pointer to \c void* that points to the
+	  *                      instance of the model object if successful,
+	  *                      *ptr points to \c NULL otherwise.
+	  *  @param  ftype       Type of expected graphical model (can be either
+	  *                      FTYPE_CRF1D or FTYPE_CRF1TREE)
+	  *  @return int         \c 0 if this function creates an object successfully,
+	  *                      \c 1 otherwise
+	  */
+	int crfsuite_create_instance_from_memory(const void *data, size_t size, void **ptr, const int ftype);
+
+	/**
 	 * Create instances of tagging object from a model file.
 	 *  @param  filename    The filename of the model.
 	 *  @param  ptr_tagger  The pointer to \c void* that points to the

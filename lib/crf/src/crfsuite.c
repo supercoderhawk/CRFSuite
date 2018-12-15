@@ -45,7 +45,7 @@
 int crf1de_create_instance(const char *iid, void **ptr);
 int crfsuite_dictionary_create_instance(const char *interface, void **ptr);
 int crf1m_create_instance_from_file(const char *filename, void **ptr, const int ftype);
-// int crf1m_create_instance_from_memory(const void *data, size_t size, void **ptr);
+int crf1m_create_instance_from_memory(const void *data, size_t size, void **ptr, const int ftype);
 
 static void swap_vars(int *a, int *b, int *tmp)
 {
@@ -66,6 +66,12 @@ int crfsuite_create_instance(const char *iid, void **ptr)
 int crfsuite_create_instance_from_file(const char *filename, void **ptr, const int ftype)
 {
 	int ret = crf1m_create_instance_from_file(filename, ptr, ftype);
+	return ret;
+}
+
+int crfsuite_create_instance_from_memory(const void * data, size_t size, void ** ptr, const int ftype)
+{
+	int ret = crf1m_create_instance_from_memory(data, size, ptr, ftype);
 	return ret;
 }
 

@@ -301,16 +301,16 @@ namespace CRFSuite
 	class Tagger
 	{
 	protected:
-		crfsuite_model_t *model = NULL;
-		crfsuite_tagger_t *tagger = NULL;
+		crfsuite_model_t *model;
+		crfsuite_tagger_t *tagger;
 		/// Mapping fromsymbolix features to indices
-		crfsuite_dictionary_t *m_attrs = NULL;
+		crfsuite_dictionary_t *m_attrs;
 		/// Auxiliary dictionary containing target labels
-		crfsuite_dictionary_t *m_labels = NULL;
+		crfsuite_dictionary_t *m_labels;
 		/// Auxiliary dictionary containing node labels
-		crfsuite_dictionary_t *m_node_labels = NULL;
+		crfsuite_dictionary_t *m_node_labels;
 		/// Reference either to the tree structure or semi-Markov dict or NULL
-		const void *m_aux = NULL;
+		const void *m_aux;
 		/// Type of CRF model
 		int m_ftype;
 
@@ -338,9 +338,30 @@ namespace CRFSuite
 		bool open(const std::string& name, const int ftype = FTYPE_CRF1D);
 
 		/**
+		* Open a model from memory.
+		*  @param  data        A pointer to the model data.
+		*                      Must be 16-byte aligned.
+		*  @param  size        A size (in bytes) of the model data.
+		*  @param  ftype       Type of the model to be loaded.
+		*  @return bool        \c true if the model file is successfully opened,
+		*                      \c false otherwise (e.g., when the mode file is
+		*                      not found).
+		*  @throw  std::runtime_error      An internal error in the model.
+		*/
+		bool open(const void* data, std::size_t size, const int ftype = FTYPE_CRF1D);
+
+		/**
 		 * Close the model.
 		 */
 		void close();
+
+		/**
+		* Obtain the list of labels.
+		*  @return StringList  The list of labels in the model.
+		*  @throw  std::invalid_argument   A model is not opened.
+		*  @throw  std::runtime_error      An internal error.
+		*/
+		StringList labels();
 
 		/**
 		 * Predict the label sequence for the item sequence.
