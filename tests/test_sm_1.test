@@ -8,6 +8,7 @@ MODEL="-m ${TOP_BUILD_PREFIX}tests/test_sm_1.model"
 
 OUTPUT_1_1="${TOP_BUILD_PREFIX}tests/test_sm_1_1.output"
 EXPECTED_1_1="${TOP_SRCDIR}/tests/test_sm_1_1.expected"
+LOG_FILE_1="${TOP_SRCDIR}/tests/test_sm_1.log"
 OUTPUT_1_3="${TOP_BUILD_PREFIX}tests/test_sm_1_3.output"
 EXPECTED_1_3="${TOP_SRCDIR}/tests/test_sm_1_3.expected"
 OUTPUT_1_5="${TOP_BUILD_PREFIX}tests/test_sm_1_5.output"
@@ -29,6 +30,7 @@ run_test()
     seg_len="$4"
     output="$5"
     expected="$6"
+    log_file="$7"
 
     # test convergence
     ${TOP_BUILD_PREFIX}frontend/crfsuite learn ${TYPE} -p feature.max_order=${order} \
@@ -37,7 +39,8 @@ run_test()
     if test $? -eq 0; then
 	echo "ok ${test_i} # ${model_name} model has converged"
     else
-	echo "not ok ${test_i} # ${model_name} model has not converged, existed with code $?"
+	echo "not ok ${test_i} # ${model_name} model has not converged, exit with code $?"
+	cat "${log_file}"
     fi
 
     # test results
@@ -60,12 +63,12 @@ echo '1..6'
 
 ##################################################################
 # Test 1, 2
-run_test 1 '1-st order linear-chain' 1 1 "${OUTPUT_1_1}" "${EXPECTED_1_1}"
+run_test 1 '1-st order linear-chain' 1 1 "${OUTPUT_1_1}" "${EXPECTED_1_1}" "${LOG_FILE_1}"
 
 ##################################################################
 # Test 3, 4
-run_test 3 '5-th order semi-markov' 5 -1 "${OUTPUT_1_3}" "${EXPECTED_1_3}"
+run_test 3 '5-th order semi-markov' 5 -1 "${OUTPUT_1_3}" "${EXPECTED_1_3}" "${LOG_FILE_1}"
 
 ##################################################################
 # Test 5, 6
-run_test 5 '5-th order linear-chain' 5 1 "${OUTPUT_1_5}" "${EXPECTED_1_5}"
+run_test 5 '5-th order linear-chain' 5 1 "${OUTPUT_1_5}" "${EXPECTED_1_5}" "${LOG_FILE_1}"
