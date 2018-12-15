@@ -1,8 +1,4 @@
 sudo: required
-language: c
-
-compiler:
-  - gcc
 
 matrix:
   include:
