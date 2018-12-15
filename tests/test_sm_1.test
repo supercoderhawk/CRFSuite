@@ -18,7 +18,7 @@ EXPECTED_1_5="${TOP_SRCDIR}/tests/test_sm_1_5.expected"
 # Methods
 run_test()
 (
-    if test $# -ne 6; then
+    if test $# -ne 7; then
 	echo 'Incorrect number of arguments specified for test function.' >&2
 	echo 'Bail out!'
 	exit 1
